@@ -86,7 +86,7 @@ export default function HeroSection() {
           >
             Mesin pengering kopi berbasis IoT yang memantau suhu dan kelembaban
             secara real-time. Dibangun oleh Tim ATMA dengan arsitektur
-            microservice yang aman dan scalable.
+            Edge Computing & Microservice yang aman dan scalable.
           </p>
 
           {/* CTA */}
