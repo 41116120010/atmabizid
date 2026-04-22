@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 
 // ATMA Logo (Official CDN URL)
 const LOGO_URL =
-  "https://www.daffiq.love/image/atma-ver.jpeg";
+  "https://www.daffiq.love/image/atma-final.jpeg";
 
 const navLinks = [
   { label: "Beranda", href: "#hero" },
