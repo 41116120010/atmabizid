@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Circle, Clock, ChevronRight } from "lucide-react";
 

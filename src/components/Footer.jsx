@@ -1,5 +1,3 @@
-"use client";
-
 import { Github, Mail, ExternalLink } from "lucide-react";
 
 // ATMA Logo URL

@@ -4,3 +4,16 @@
 # React Router
 /.react-router/
 /build/
+
+# IDE
+.vscode/
+.idea/
+
+# Deploy
+.vercel/
+.netlify/
+
+# Environment
+.env
+.env.local
+.env.*.local
