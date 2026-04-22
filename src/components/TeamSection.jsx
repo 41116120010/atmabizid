@@ -9,7 +9,7 @@ const teamMembers = [
     color: "#C8956C",
     skills: ["ESP32", "Arduino", "Sensor"],
     imgPlaceholder:
-      "https://ucarecdn.com/361e430b-1181-4e3a-8fff-027f2f7ba1b1/-/format/auto/",
+      "https://www.daffiq.love/image/ihsan.jpeg",
     github: "https://github.com/OnlyTexy",
     email: "ihsan@atma.biz.id",
   },
@@ -20,7 +20,7 @@ const teamMembers = [
     color: "#7C9CBF",
     skills: ["Node.js", "REST API", "Docker"],
     imgPlaceholder:
-      "https://ucarecdn.com/c405de1a-c267-4270-a2f2-cfdaafbeac2b/-/format/auto/",
+      "https://www.daffiq.love/image/apri.jpeg",
     github: "https://github.com/Apri1229",
     email: "apri@atma.biz.id",
   },
@@ -31,7 +31,7 @@ const teamMembers = [
     color: "#8BC49E",
     skills: ["Encryption", "Firewall", "Pentest"],
     imgPlaceholder:
-      "https://ucarecdn.com/1722ae02-b325-49b9-906d-3fc349668a5f/-/format/auto/",
+      "https://www.daffiq.love/image/radit.jpeg",
     github: "https://github.com/Radhit11",
     email: "radit@atma.biz.id",
   },
@@ -42,7 +42,7 @@ const teamMembers = [
     color: "#B89ACA",
     skills: ["Linux", "VLAN", "DNS"],
     imgPlaceholder:
-      "https://ucarecdn.com/e657a8ad-8baa-4cc3-97ca-adec1b22cef9/-/format/auto/",
+      "https://www.daffiq.love/image/IMG-20221026-WA0018.jpg",
     github: "https://github.com/41116120010",
     email: "daffiq@atma.biz.id",
   },
