@@ -2,7 +2,7 @@ import { Github, Mail, ExternalLink } from "lucide-react";
 
 // ATMA Logo URL
 const LOGO_URL =
-  "https://ucarecdn.com/0360c109-8e66-47e5-ad0c-711974121247/-/format/auto/";
+  "https://www.daffiq.love/image/atma-ver.jpeg";
 
 const quickLinks = [
   { label: "Beranda", href: "#hero" },
