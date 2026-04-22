@@ -257,8 +257,8 @@ export default function DashboardSection() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Sensor DHT", status: "Standby", color: "#C8956C" },
-              { label: "WiFi Module", status: "Standby", color: "#C8956C" },
+              { label: "Sensor DHT", status: "Planned", color: "#555" },
+              { label: "WiFi Module", status: "Planned", color: "#555" },
               { label: "API Gateway", status: "Planned", color: "#555" },
               { label: "Database", status: "Planned", color: "#555" },
             ].map((item) => (
