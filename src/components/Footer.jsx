@@ -2,7 +2,7 @@ import { Github, Mail, ExternalLink } from "lucide-react";
 
 // ATMA Logo URL
 const LOGO_URL =
-  "https://www.daffiq.love/image/atma-ver.jpeg";
+  "https://www.daffiq.love/image/atma-final.jpeg";
 
 const quickLinks = [
   { label: "Beranda", href: "#hero" },
