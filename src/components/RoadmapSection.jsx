@@ -18,7 +18,7 @@ const phases = [
     phase: "Phase 2",
     title: "Hardware Assembly",
     period: "Minggu 3 – 5",
-    status: "upcoming",
+    status: "in-progress",
     items: [
       { text: "Perakitan mikrokontroler & sensor", done: false },
       { text: "Kalibrasi sensor suhu & kelembaban", done: false },
