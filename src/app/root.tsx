@@ -27,7 +27,7 @@ export const meta = () => [
   },
   {
     property: 'og:image',
-    content: 'https://ucarecdn.com/0360c109-8e66-47e5-ad0c-711974121247/-/format/auto/',
+    content: 'https://www.daffiq.love/image/atma-ver.jpeg',
   },
   { property: 'og:type', content: 'website' },
   { name: 'twitter:card', content: 'summary_large_image' },
@@ -39,7 +39,7 @@ export const meta = () => [
   },
   {
     name: 'twitter:image',
-    content: 'https://ucarecdn.com/0360c109-8e66-47e5-ad0c-711974121247/-/format/auto/',
+    content: 'https://www.daffiq.love/image/atma-ver.jpeg',
   },
 ];
 
@@ -57,7 +57,7 @@ export function Layout({ children }: { children: ReactNode }) {
         />
         <link
           rel="icon"
-          href="https://ucarecdn.com/0360c109-8e66-47e5-ad0c-711974121247/-/format/auto/"
+          href="https://www.daffiq.love/image/atma-ver.jpeg"
         />
       </head>
       <body>
