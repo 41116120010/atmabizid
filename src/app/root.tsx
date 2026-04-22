@@ -27,7 +27,7 @@ export const meta = () => [
   },
   {
     property: 'og:image',
-    content: 'https://www.daffiq.love/image/atma-ver.jpeg',
+    content: 'https://www.daffiq.love/image/atma-final.jpeg',
   },
   { property: 'og:type', content: 'website' },
   { name: 'twitter:card', content: 'summary_large_image' },
@@ -39,7 +39,7 @@ export const meta = () => [
   },
   {
     name: 'twitter:image',
-    content: 'https://www.daffiq.love/image/atma-ver.jpeg',
+    content: 'https://www.daffiq.love/image/atma-final.jpeg',
   },
 ];
 
@@ -57,7 +57,7 @@ export function Layout({ children }: { children: ReactNode }) {
         />
         <link
           rel="icon"
-          href="https://www.daffiq.love/image/atma-ver.jpeg"
+          href="https://www.daffiq.love/image/atma-final.jpeg"
         />
       </head>
       <body>
