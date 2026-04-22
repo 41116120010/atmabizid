@@ -141,7 +141,7 @@ export default function DashboardSection() {
             </h2>
             <p className="mt-5 text-[#777] text-[15px] font-inter leading-[1.7]">
               Preview dashboard monitoring real-time. Data di bawah ini adalah
-              simulasi — akan terhubung ke sensor asli setelah hardware siap.
+              simulasi yang nantinya akan terhubung ke sensor asli setelah hardware siap.
             </p>
           </div>
 
