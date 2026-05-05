@@ -51,7 +51,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="icon" type="image/x-icon" href="https://www.daffiq.love/image/atma-final.ico">
+        <link rel="icon" type="image/x-icon" href="https://www.daffiq.love/image/atma-final.ico" />
         <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body>
