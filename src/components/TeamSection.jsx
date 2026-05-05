@@ -42,7 +42,7 @@ const teamMembers = [
     color: "#B89ACA",
     skills: ["Linux", "VLAN", "DNS"],
     imgPlaceholder:
-      "https://www.daffiq.love/image/IMG-20221026-WA0018.jpg",
+      "https://www.daffiq.love/image/3x4.png",
     github: "https://github.com/41116120010",
     email: "daffiq@atma.biz.id",
   },
