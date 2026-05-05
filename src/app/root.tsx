@@ -57,7 +57,7 @@ export function Layout({ children }: { children: ReactNode }) {
         />
         <link
           rel="icon"
-          type="image/png"
+          type="image/jpeg"
           href="https://www.daffiq.love/image/atma-final.jpeg"
         />
       </head>
