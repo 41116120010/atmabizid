@@ -153,12 +153,14 @@ export default function TeamSection() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[#444] hover:text-[#999] transition-colors"
+                    aria-label={`Github profil ${member.name}`}
                   >
                     <Github size={15} />
                   </a>
                   <a
                     href={`mailto:${member.email}`}
                     className="text-[#444] hover:text-[#999] transition-colors"
+                    aria-label={`Email ke ${member.name}`}
                   >
                     <Mail size={15} />
                   </a>

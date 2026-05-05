@@ -124,6 +124,7 @@ export default function Navbar() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden w-10 h-10 flex items-center justify-center text-white/70 hover:text-white rounded-[8px] hover:bg-white/5 transition-colors"
+            aria-label={mobileOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>

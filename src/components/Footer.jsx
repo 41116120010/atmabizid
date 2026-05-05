@@ -43,7 +43,7 @@ export default function Footer() {
                 ATMA
               </span>
             </div>
-            <p className="text-[#666] text-[14px] font-inter leading-[1.7] max-w-[320px] mb-6">
+            <p className="text-[#999] text-[14px] font-inter leading-[1.7] max-w-[320px] mb-6">
               Mesin pengering kopi berbasis IoT — proyek kolaboratif semester 4
               yang mengintegrasikan 5 mata kuliah dalam satu solusi teknologi.
             </p>
@@ -52,13 +52,15 @@ export default function Footer() {
                 href="https://github.com/atmacoffee"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-[8px] border border-white/5 bg-white/[0.02] flex items-center justify-center text-[#555] hover:text-white hover:border-white/10 transition-all"
+                className="w-9 h-9 rounded-[8px] border border-white/5 bg-white/[0.02] flex items-center justify-center text-[#888] hover:text-white hover:border-white/10 transition-all"
+                aria-label="Repository Github ATMA"
               >
                 <Github size={15} />
               </a>
               <a
                 href="mailto:help@atma.biz.id"
-                className="w-9 h-9 rounded-[8px] border border-white/5 bg-white/[0.02] flex items-center justify-center text-[#555] hover:text-white hover:border-white/10 transition-all"
+                className="w-9 h-9 rounded-[8px] border border-white/5 bg-white/[0.02] flex items-center justify-center text-[#888] hover:text-white hover:border-white/10 transition-all"
+                aria-label="Email Bantuan ATMA"
               >
                 <Mail size={15} />
               </a>
@@ -67,7 +69,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="md:col-span-3">
-            <span className="text-[#666] text-[11px] font-inter font-semibold tracking-[0.12em] uppercase block mb-5">
+            <span className="text-[#999] text-[11px] font-inter font-semibold tracking-[0.12em] uppercase block mb-5">
               Navigasi
             </span>
             <div className="flex flex-col gap-[10px]">
@@ -79,7 +81,7 @@ export default function Footer() {
                     e.preventDefault();
                     scrollTo(link.href);
                   }}
-                  className="text-[#555] hover:text-white text-[13px] font-inter transition-colors flex items-center gap-2 group"
+                  className="text-[#888] hover:text-white text-[13px] font-inter transition-colors flex items-center gap-2 group"
                 >
                   {link.label}
                   <ExternalLink
@@ -93,7 +95,7 @@ export default function Footer() {
 
           {/* Tech Links */}
           <div className="md:col-span-4">
-            <span className="text-[#666] text-[11px] font-inter font-semibold tracking-[0.12em] uppercase block mb-5">
+            <span className="text-[#999] text-[11px] font-inter font-semibold tracking-[0.12em] uppercase block mb-5">
               Teknologi
             </span>
             <div className="flex flex-col gap-[10px]">
@@ -105,7 +107,7 @@ export default function Footer() {
                     e.preventDefault();
                     scrollTo(link.href);
                   }}
-                  className="text-[#555] hover:text-white text-[13px] font-inter transition-colors flex items-center gap-2 group"
+                  className="text-[#888] hover:text-white text-[13px] font-inter transition-colors flex items-center gap-2 group"
                 >
                   {link.label}
                   <ExternalLink
@@ -120,7 +122,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="py-6 border-t border-white/5 flex items-center justify-center">
-          <span className="text-[#333] text-[12px] font-inter">
+          <span className="text-[#888] text-[12px] font-inter">
             © 2026 ATMA. All Rights Reserved.
           </span>
         </div>

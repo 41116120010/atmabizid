@@ -176,6 +176,7 @@ export default function DashboardSection() {
             <button
               onClick={() => setMockData(generateMockData())}
               className="w-9 h-9 flex items-center justify-center rounded-[8px] border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-[#666] hover:text-white transition-all"
+              aria-label="Refresh Data"
             >
               <RefreshCw size={14} />
             </button>
