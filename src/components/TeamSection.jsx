@@ -8,8 +8,7 @@ const teamMembers = [
     desc: "Bertanggung jawab atas perakitan hardware dan integrasi sensor dengan mikrokontroler.",
     color: "#C8956C",
     skills: ["ESP32", "Arduino", "Sensor"],
-    imgPlaceholder:
-      "https://www.daffiq.love/image/ihsan.jpeg",
+    imgPlaceholder: "/image/ihsan.jpeg",
     github: "https://github.com/OnlyTexy",
     email: "ihsan@atma.biz.id",
   },
@@ -19,8 +18,7 @@ const teamMembers = [
     desc: "Merancang dan mengembangkan arsitektur microservice serta API gateway.",
     color: "#7C9CBF",
     skills: ["Node.js", "REST API", "Docker"],
-    imgPlaceholder:
-      "https://www.daffiq.love/image/apri.jpeg",
+    imgPlaceholder: "/image/apri.jpeg",
     github: "https://github.com/Apri1229",
     email: "apri@atma.biz.id",
   },
@@ -30,8 +28,7 @@ const teamMembers = [
     desc: "Mengimplementasikan keamanan jaringan, enkripsi data, dan penetration testing.",
     color: "#8BC49E",
     skills: ["Encryption", "Firewall", "Pentest"],
-    imgPlaceholder:
-      "https://www.daffiq.love/image/radit.jpeg",
+    imgPlaceholder: "/image/radit.jpeg",
     github: "https://github.com/Radhit11",
     email: "radit@atma.biz.id",
   },
@@ -41,8 +38,7 @@ const teamMembers = [
     desc: "Mengelola infrastruktur jaringan, konfigurasi server, dan deployment sistem.",
     color: "#B89ACA",
     skills: ["Linux", "VLAN", "DNS"],
-    imgPlaceholder:
-      "https://www.daffiq.love/image/3x4.png",
+    imgPlaceholder: "/image/3x4.png",
     github: "https://github.com/41116120010",
     email: "daffiq@atma.biz.id",
   },
@@ -114,8 +110,11 @@ export default function TeamSection() {
                 <div className="w-20 h-20 rounded-[12px] overflow-hidden mb-5 border border-white/5">
                   <img
                     src={member.imgPlaceholder}
-                    alt={member.name}
+                    alt={`Foto ${member.name}, ${member.role} di Tim ATMA`}
                     className="w-full h-full object-cover"
+                    width={80}
+                    height={80}
+                    loading="lazy"
                     style={{ aspectRatio: "1/1" }}
                   />
                 </div>

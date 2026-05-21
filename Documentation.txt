@@ -1,0 +1,408 @@
+================================================================================
+  LAPORAN ANALISA PROFESIONAL - WEBSITE BRANDING ATMA (atma.biz.id)
+  Oleh: Senior Fullstack Web Developer
+  Tanggal: 21 Mei 2026
+  Prinsip Evaluasi: Lightweight, Secure, Scalable, Professional
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. RINGKASAN PROYEK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Nama        : ATMA - Mesin Pengering Kopi Berbasis IoT
+URL         : atma.biz.id
+Tipe        : Single Page Application (SPA) - Landing/Branding Page
+Framework   : React Router v7 (SPA mode, SSR disabled)
+Build Tool  : Vite 6.3
+Styling     : Tailwind CSS v3
+Deployment  : Vercel (static hosting)
+Bahasa      : JSX (komponen), TypeScript (konfigurasi)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. TEMUAN KERENTANAN (SECURITY VULNERABILITIES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[KRITIS] 2.1 Tidak Ada Security Headers
+─────────────────────────────────────────
+File: vercel.json
+Masalah:
+  - Tidak ada Content-Security-Policy (CSP)
+  - Tidak ada Strict-Transport-Security (HSTS)
+  - Tidak ada X-Frame-Options (rentan clickjacking)
+  - Tidak ada X-Content-Type-Options
+  - Tidak ada Referrer-Policy
+  - Tidak ada Permissions-Policy
+
+Dampak: Website rentan terhadap XSS injection, clickjacking, MIME sniffing,
+        dan tidak memaksa koneksi HTTPS.
+
+Rekomendasi: Tambahkan headers di vercel.json:
+  {
+    "headers": [
+      {
+        "source": "/(.*)",
+        "headers": [
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+          { "key": "Content-Security-Policy", "value": "default-src 'self'; img-src 'self' https://www.daffiq.love; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" }
+        ]
+      }
+    ]
+  }
+
+[TINGGI] 2.2 Ketergantungan Penuh pada Domain Eksternal untuk Aset
+──────────────────────────────────────────────────────────────────────
+File: Navbar.jsx, Footer.jsx, TeamSection.jsx, root.tsx
+Masalah:
+  - Logo: https://www.daffiq.love/image/atma-final.jpeg
+  - Favicon: https://www.daffiq.love/image/atma-final.ico
+  - Foto tim: https://www.daffiq.love/image/ihsan.jpeg, dll.
+  - OG Image: https://www.daffiq.love/image/atma-final.jpeg
+
+  Padahal file-file tersebut SUDAH ADA di /public/image/ secara lokal.
+
+Dampak: Jika domain daffiq.love down/expired, seluruh gambar website hilang
+        termasuk favicon dan preview social media. Single point of failure.
+
+Rekomendasi:
+  - Gunakan path lokal: /image/atma-final.jpeg (dari folder public/)
+  - Untuk OG image, gunakan URL absolut domain sendiri: https://atma.biz.id/image/atma-final.jpeg
+
+[SEDANG] 2.3 Email Hardcoded di Source Code
+─────────────────────────────────────────────
+File: TeamSection.jsx, Footer.jsx
+Masalah:
+  - Email tim (ihsan@atma.biz.id, apri@atma.biz.id, dll.) di-hardcode langsung
+  - Mudah di-harvest oleh spam bot melalui view-source
+
+Rekomendasi:
+  - Gunakan obfuscation (encode email) atau contact form
+  - Alternatif: render email via JavaScript decode
+
+[RENDAH] 2.4 Server Dev Terbuka ke Semua Interface
+────────────────────────────────────────────────────
+File: vite.config.ts
+Masalah: server.host: '0.0.0.0' membuka dev server ke seluruh network interface.
+
+Dampak: Hanya berlaku saat development, tapi bisa mengekspos data jika
+        dijalankan di jaringan publik.
+
+Rekomendasi: Gunakan 'localhost' atau '127.0.0.1' kecuali memang perlu akses LAN.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. TEMUAN KEKURANGAN PERFORMA (PERFORMANCE ISSUES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[TINGGI] 3.1 Google Fonts Blocking Render
+──────────────────────────────────────────
+File: root.tsx
+Masalah:
+  - Font dimuat via <link href="...fonts.googleapis.com..."> di <head>
+  - Tidak ada font-display: swap pada URL
+  - Tidak ada preload untuk font files
+  - Menyebabkan FOIT (Flash of Invisible Text) saat loading
+
+Rekomendasi:
+  - Tambahkan &display=swap pada URL Google Fonts
+  - Atau lebih baik: self-host font files untuk mengurangi external dependency
+  - Tambahkan <link rel="preload"> untuk font files kritis
+
+[TINGGI] 3.2 Gambar Tidak Dioptimasi
+──────────────────────────────────────
+File: Semua komponen yang menggunakan <img>
+Masalah:
+  - Tidak ada lazy loading (loading="lazy")
+  - Tidak ada srcset/sizes untuk responsive images
+  - Format JPEG tanpa alternatif WebP/AVIF
+  - Tidak ada width/height eksplisit (menyebabkan layout shift / CLS tinggi)
+  - Gambar dimuat dari external domain (latency tambahan)
+
+Rekomendasi:
+  - Tambahkan loading="lazy" pada gambar di bawah fold
+  - Tambahkan width dan height attribute untuk mencegah CLS
+  - Konversi ke WebP dengan JPEG fallback
+  - Gunakan gambar lokal dari /public/image/
+
+[SEDANG] 3.3 Dependency Tidak Terpakai
+────────────────────────────────────────
+File: package.json
+Masalah:
+  - "sonner" (toast notification library) terinstall tapi TIDAK digunakan
+    di manapun dalam kode
+  - "isbot" terinstall tapi SSR dimatikan (ssr: false), jadi tidak berguna
+  - "@react-router/node" tidak diperlukan untuk SPA-only mode
+
+Dampak: Bundle size membengkak tanpa alasan.
+
+Rekomendasi: Hapus dependency yang tidak digunakan:
+  npm uninstall sonner isbot @react-router/node
+
+[SEDANG] 3.4 Lucide-react Versi Lama & Pinned
+───────────────────────────────────────────────
+File: package.json
+Masalah: "lucide-react": "0.358.0" (tanpa caret ^, pinned ke versi lama)
+
+Rekomendasi: Update ke versi terbaru dengan caret: "^0.400.0" (atau latest)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. TEMUAN KUALITAS KODE (CODE QUALITY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[TINGGI] 4.1 Inkonsistensi TypeScript vs JavaScript
+─────────────────────────────────────────────────────
+Masalah:
+  - tsconfig.json dikonfigurasi dengan strict: true
+  - Konfigurasi file (.ts/.tsx): root.tsx, routes.ts, vite.config.ts
+  - Komponen SEMUA menggunakan .jsx (bukan .tsx)
+  - Tidak ada type annotations di komponen manapun
+
+Dampak: TypeScript strict mode tidak memberikan manfaat karena komponen
+        tidak menggunakan TypeScript. Type safety hilang.
+
+Rekomendasi:
+  - Migrasi semua komponen dari .jsx ke .tsx
+  - Tambahkan interface/type untuk props, state, dan data
+  - Atau jika memang tidak mau pakai TS, hapus tsconfig strict mode
+
+[SEDANG] 4.2 Tidak Ada Error Boundary
+──────────────────────────────────────
+Masalah: Tidak ada React Error Boundary di manapun.
+
+Dampak: Jika satu komponen error, seluruh halaman crash (white screen).
+
+Rekomendasi: Tambahkan ErrorBoundary di root layout.
+
+[SEDANG] 4.3 Dead Code / Unused State
+──────────────────────────────────────
+File: DashboardSection.jsx
+Masalah:
+  - const [isOnline, setIsOnline] = useState(false)
+  - State ini TIDAK PERNAH di-set ke true
+  - setIsOnline tidak pernah dipanggil
+  - Kode "Sensor Online" path tidak pernah tercapai
+
+Rekomendasi: Hapus state isOnline atau implementasikan toggle-nya.
+
+[SEDANG] 4.4 Konflik Module System
+────────────────────────────────────
+File: tailwind.config.js vs package.json
+Masalah:
+  - package.json: "type": "module" (ESM)
+  - tailwind.config.js: menggunakan module.exports (CommonJS)
+  - postcss.config.js: menggunakan export default (ESM) ✓
+
+Dampak: Potensi error saat build di environment tertentu.
+
+Rekomendasi: Ubah tailwind.config.js ke ESM syntax:
+  export default { ... }
+
+[RENDAH] 4.5 Inline Styles Berlebihan
+──────────────────────────────────────
+File: Semua komponen section
+Masalah: Banyak inline style untuk animasi (opacity, transform) yang
+         seharusnya bisa menggunakan Tailwind classes atau CSS custom.
+
+Rekomendasi: Buat utility class di global.css atau gunakan Tailwind plugin
+             untuk animasi scroll-triggered.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. TEMUAN SEO & AKSESIBILITAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[TINGGI] 5.1 Tidak Ada Sitemap.xml
+───────────────────────────────────
+Masalah: Hanya ada robots.txt, tidak ada sitemap.xml.
+
+Dampak: Search engine tidak bisa menemukan dan mengindex halaman secara optimal.
+
+Rekomendasi: Buat public/sitemap.xml dengan URL halaman utama.
+
+[SEDANG] 5.2 OG Image Menggunakan Domain Eksternal
+────────────────────────────────────────────────────
+File: root.tsx
+Masalah: og:image dan twitter:image mengarah ke https://www.daffiq.love/...
+         bukan ke domain atma.biz.id sendiri.
+
+Dampak: Social media preview bisa gagal jika domain eksternal bermasalah.
+
+Rekomendasi: Host OG image di domain sendiri: https://atma.biz.id/image/atma-final.jpeg
+
+[SEDANG] 5.3 Kontras Warna Tidak Memenuhi WCAG AA
+───────────────────────────────────────────────────
+Masalah:
+  - Teks #555 pada background #0A0A0A → rasio ~2.16:1 (GAGAL, minimum 4.5:1)
+  - Teks #666 pada background #0A0A0A → rasio ~2.66:1 (GAGAL)
+  - Teks #777 pada background #0A0A0A → rasio ~3.24:1 (GAGAL)
+  - Teks #888 pada background #060606 → rasio ~3.93:1 (GAGAL untuk teks kecil)
+
+Dampak: Pengguna dengan gangguan penglihatan kesulitan membaca konten.
+
+Rekomendasi: Naikkan brightness teks muted minimal ke #999 (rasio ~4.58:1)
+             atau gunakan #AAA untuk memenuhi WCAG AA.
+
+[SEDANG] 5.4 Tidak Ada Skip Navigation Link
+─────────────────────────────────────────────
+Masalah: Tidak ada "Skip to content" link untuk pengguna keyboard/screen reader.
+
+Rekomendasi: Tambahkan skip link tersembunyi di awal body yang muncul saat focus.
+
+[RENDAH] 5.5 Alt Text Kurang Deskriptif
+─────────────────────────────────────────
+File: TeamSection.jsx
+Masalah: alt={member.name} — hanya nama, tidak mendeskripsikan konteks foto.
+
+Rekomendasi: Gunakan format: "Foto [nama], [role] di Tim ATMA"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. TEMUAN SCALABILITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[SEDANG] 6.1 Data Hardcoded di Komponen
+────────────────────────────────────────
+File: Semua komponen (TeamSection, RoadmapSection, TechSection, dll.)
+Masalah:
+  - Data tim, roadmap, fitur, dll. di-hardcode langsung di file komponen
+  - Tidak ada pemisahan data dan presentasi
+  - Jika ingin update konten, harus edit source code dan re-deploy
+
+Rekomendasi:
+  - Pisahkan data ke file terpisah (misal: src/data/team.ts, src/data/roadmap.ts)
+  - Atau gunakan CMS headless (Contentful, Sanity) untuk konten dinamis
+  - Minimal: buat folder src/constants/ untuk semua static data
+
+[RENDAH] 6.2 Tidak Ada Environment Variables
+──────────────────────────────────────────────
+Masalah:
+  - URL CDN (daffiq.love) di-hardcode di banyak tempat
+  - Tidak ada .env untuk konfigurasi yang bisa berubah per environment
+
+Rekomendasi: Gunakan VITE_* environment variables untuk URL yang bisa berubah.
+
+[RENDAH] 6.3 Single Route Architecture
+────────────────────────────────────────
+File: routes.ts
+Masalah: Hanya ada 1 route (index). Jika website berkembang (blog, docs, dll.),
+         arsitektur routing perlu di-refactor.
+
+Catatan: Untuk landing page saat ini, ini acceptable. Tapi perlu dipertimbangkan
+         jika ada rencana ekspansi.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. HAL YANG SUDAH BAIK & SESUAI PRINSIP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ 7.1 Lightweight Framework Choice
+  - Vite sebagai build tool → fast build, minimal overhead
+  - React Router v7 SPA mode → ringan tanpa server runtime
+  - Tailwind CSS → utility-first, tree-shakeable, no unused CSS in production
+
+✓ 7.2 Deployment Strategy
+  - Vercel static hosting → CDN global, auto-scaling, zero config SSL
+  - SPA rewrite rules dikonfigurasi dengan benar di vercel.json
+  - .gitignore sudah mencakup build artifacts, node_modules, env files
+
+✓ 7.3 UI/UX Design Quality
+  - Design system konsisten (warna, spacing, typography)
+  - Color palette yang kohesif (#C8956C sebagai accent, dark theme)
+  - Responsive design (mobile-first dengan breakpoints md/lg)
+  - Smooth scroll navigation dengan active section indicator
+  - Intersection Observer untuk scroll-triggered animations (performant)
+  - Mobile hamburger menu dengan proper aria-labels
+
+✓ 7.4 Accessibility Basics
+  - aria-label pada tombol navigasi mobile
+  - aria-label pada social media links
+  - Semantic HTML (nav, section, footer, h1-h3)
+  - lang="id" pada html tag
+  - Proper heading hierarchy
+
+✓ 7.5 SEO Fundamentals
+  - Meta title dan description ada
+  - Open Graph tags lengkap (title, description, image, type)
+  - Twitter Card meta tags
+  - robots.txt mengizinkan crawling
+  - Charset dan viewport meta tags
+
+✓ 7.6 Modern Development Practices
+  - Path alias (@/*) untuk clean imports
+  - Passive event listener pada scroll handler
+  - Proper cleanup di useEffect (unobserve, removeEventListener)
+  - Component-based architecture dengan separation of concerns
+  - rel="noopener noreferrer" pada external links
+
+✓ 7.7 Visual Polish
+  - Gradient orbs dan grid background untuk depth
+  - Hover states pada semua interactive elements
+  - Consistent border-radius dan spacing system
+  - Professional typography pairing (Inter + Crimson Text)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. PRIORITAS PERBAIKAN (REKOMENDASI URUTAN)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PRIORITAS 1 (Harus segera diperbaiki):
+  1. Tambahkan security headers di vercel.json
+  2. Ganti semua URL daffiq.love ke path lokal (/image/...)
+  3. Tambahkan &display=swap pada Google Fonts URL
+  4. Tambahkan loading="lazy" dan width/height pada gambar
+
+PRIORITAS 2 (Sebaiknya diperbaiki):
+  5. Migrasi komponen .jsx ke .tsx (konsistensi TypeScript)
+  6. Hapus dependency tidak terpakai (sonner, isbot, @react-router/node)
+  7. Perbaiki kontras warna untuk WCAG AA compliance
+  8. Buat sitemap.xml
+  9. Pisahkan data dari komponen ke file terpisah
+
+PRIORITAS 3 (Nice to have):
+  10. Tambahkan Error Boundary
+  11. Tambahkan skip navigation link
+  12. Self-host fonts (eliminasi Google Fonts dependency)
+  13. Konversi gambar ke WebP
+  14. Tambahkan environment variables untuk URL konfigurasi
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. SKOR PENILAIAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Kategori              Skor    Catatan
+  ─────────────────────────────────────────────────────────────
+  Lightweight           7/10    Stack ringan, tapi ada unused deps
+  Secure                4/10    Tidak ada security headers sama sekali
+  Scalable              5/10    Data hardcoded, no env vars, single route
+  Professional          6/10    UI bagus, tapi inkonsistensi TS/JS & no tests
+  Performance           5/10    Font blocking, no image optimization
+  Accessibility         5/10    Basic ada, tapi kontras gagal WCAG
+  SEO                   6/10    Meta tags ada, tapi no sitemap
+  ─────────────────────────────────────────────────────────────
+  RATA-RATA             5.4/10
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. KESIMPULAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Website ATMA memiliki fondasi visual dan UX yang BAIK — design system konsisten,
+animasi smooth, dan responsive. Namun dari sisi engineering, terdapat gap
+signifikan terutama di area:
+
+1. KEAMANAN: Tidak ada security headers sama sekali. Ini adalah kelemahan
+   paling kritis yang harus segera ditangani.
+
+2. RELIABILITAS: Ketergantungan pada domain eksternal (daffiq.love) untuk
+   semua aset visual adalah single point of failure yang berbahaya.
+
+3. KONSISTENSI: Proyek dikonfigurasi untuk TypeScript strict tapi semua
+   komponen ditulis dalam JavaScript biasa — ini menunjukkan setup yang
+   tidak dimanfaatkan dengan benar.
+
+4. PERFORMA: Font blocking dan gambar tanpa optimasi akan berdampak pada
+   Core Web Vitals (LCP, CLS) yang mempengaruhi SEO dan user experience.
+
+Untuk mencapai standar "professional-grade", fokus utama harus pada security
+headers, asset management (lokal), dan konsistensi codebase.
+
+================================================================================
+  END OF REPORT
+================================================================================

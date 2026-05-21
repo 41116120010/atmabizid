@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 
-// ATMA Logo (Official CDN URL)
-const LOGO_URL =
-  "https://www.daffiq.love/image/atma-final.jpeg";
+// ATMA Logo (local asset)
+const LOGO_URL = "/image/atma-final.jpeg";
 
 const navLinks = [
   { label: "Beranda", href: "#hero" },
@@ -71,6 +70,8 @@ export default function Navbar() {
                 src={LOGO_URL}
                 alt="ATMA Logo"
                 className="w-9 h-9 object-contain"
+                width={36}
+                height={36}
               />
             ) : (
               <div className="w-9 h-9 rounded-[8px] bg-gradient-to-br from-[#C8956C] to-[#8B5E3C] flex items-center justify-center">

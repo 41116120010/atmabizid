@@ -1,8 +1,7 @@
 import { Github, Mail, ExternalLink } from "lucide-react";
 
-// ATMA Logo URL
-const LOGO_URL =
-  "https://www.daffiq.love/image/atma-final.jpeg";
+// ATMA Logo (local asset)
+const LOGO_URL = "/image/atma-final.jpeg";
 
 const quickLinks = [
   { label: "Beranda", href: "#hero" },
@@ -38,6 +37,8 @@ export default function Footer() {
                 src={LOGO_URL}
                 alt="ATMA Logo"
                 className="w-9 h-9 object-contain rounded-[8px]"
+                width={36}
+                height={36}
               />
               <span className="text-white font-inter font-semibold text-[18px] tracking-[0.02em]">
                 ATMA
