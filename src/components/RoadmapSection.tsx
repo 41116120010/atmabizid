@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Circle, Clock, ChevronRight } from "lucide-react";
 import { phases } from "../data/roadmap";
+import type { RoadmapPhase } from "../types";
 
-function getStatusConfig(status) {
+function getStatusConfig(status: RoadmapPhase["status"]) {
   if (status === "completed")
     return { color: "#8BC49E", bg: "#8BC49E", label: "Selesai" };
   if (status === "in-progress")
     return { color: "#C8956C", bg: "#C8956C", label: "Sedang Dikerjakan" };
-  return { color: "#555", bg: "#555", label: "Akan Datang" };
+  return { color: "#9A9A9A", bg: "#9A9A9A", label: "Akan Datang" };
 }
 
 export default function RoadmapSection() {
   const [visible, setVisible] = useState(false);
   const [expandedPhase, setExpandedPhase] = useState(1);
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -46,7 +47,6 @@ export default function RoadmapSection() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[1000px] h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div
             className="max-w-[500px] transition-all duration-700"
@@ -64,7 +64,6 @@ export default function RoadmapSection() {
             </h2>
           </div>
 
-          {/* Progress Bar */}
           <div
             className="flex items-center gap-5 transition-all duration-700 delay-200"
             style={{
@@ -89,9 +88,7 @@ export default function RoadmapSection() {
           </div>
         </div>
 
-        {/* Timeline */}
         <div className="relative">
-          {/* Vertical Line (desktop) */}
           <div className="hidden md:block absolute left-[22px] top-0 bottom-0 w-px bg-white/5" />
 
           <div className="flex flex-col gap-4">
@@ -120,7 +117,6 @@ export default function RoadmapSection() {
                           : "border-white/5 bg-white/[0.01] hover:bg-white/[0.02] hover:border-white/8"
                       }`}
                     >
-                      {/* Status Dot */}
                       <div className="relative flex-shrink-0">
                         <div
                           className="w-[12px] h-[12px] rounded-full border-2"
@@ -143,7 +139,6 @@ export default function RoadmapSection() {
                         )}
                       </div>
 
-                      {/* Phase Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 flex-wrap">
                           <span className="text-white font-inter font-semibold text-[15px]">
@@ -171,7 +166,6 @@ export default function RoadmapSection() {
                         </div>
                       </div>
 
-                      {/* Expand Icon */}
                       <ChevronRight
                         size={18}
                         className={`text-[#9A9A9A] transition-transform duration-200 flex-shrink-0 ${
@@ -181,7 +175,6 @@ export default function RoadmapSection() {
                     </div>
                   </button>
 
-                  {/* Expanded Content */}
                   {isExpanded && (
                     <div className="mt-2 ml-0 md:ml-[42px] p-5 md:p-6 rounded-[12px] border border-white/5 bg-white/[0.01]">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -212,7 +205,6 @@ export default function RoadmapSection() {
                         ))}
                       </div>
 
-                      {/* Mini progress */}
                       <div className="mt-5 pt-4 border-t border-white/5">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[#9A9A9A] text-[11px] font-inter">

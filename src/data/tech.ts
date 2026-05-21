@@ -1,6 +1,7 @@
 import { Cpu, Server, Shield, Globe, Database, Lock } from "lucide-react";
+import type { TechLayer, Subject } from "../types";
 
-export const layers = [
+export const layers: TechLayer[] = [
   {
     label: "DEVICE LAYER",
     title: "IoT & Sensor",
@@ -35,7 +36,7 @@ export const layers = [
   },
 ];
 
-export const subjects = [
+export const subjects: Subject[] = [
   { name: "Internet of Things", icon: Cpu },
   { name: "Pemrograman Microservice", icon: Database },
   { name: "Keamanan Komputer & Jaringan", icon: Lock },

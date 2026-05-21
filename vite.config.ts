@@ -16,7 +16,7 @@ export default defineConfig({
   },
   clearScreen: false,
   server: {
-    host: '0.0.0.0',
+    host: 'localhost',
     port: 4000,
     hmr: {
       overlay: false,

@@ -1,4 +1,6 @@
-export const phases = [
+import type { RoadmapPhase } from "../types";
+
+export const phases: RoadmapPhase[] = [
   {
     phase: "Phase 1",
     title: "Research & Planning",

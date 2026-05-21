@@ -1,6 +1,7 @@
 import { Thermometer, Droplets, Zap, BarChart3 } from "lucide-react";
+import type { Feature } from "../types";
 
-export const features = [
+export const features: Feature[] = [
   {
     icon: Thermometer,
     title: "Monitoring Suhu",

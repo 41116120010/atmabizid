@@ -4,7 +4,7 @@ import { features } from "../data/product";
 
 export default function ProductSection() {
   const [visible, setVisible] = useState(false);
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -26,11 +26,9 @@ export default function ProductSection() {
       ref={sectionRef}
       className="relative py-28 md:py-36 bg-[#0A0A0A]"
     >
-      {/* Divider line */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[1000px] h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
-        {/* Header */}
         <div
           className="max-w-[600px] mb-20 transition-all duration-700"
           style={{
@@ -52,7 +50,6 @@ export default function ProductSection() {
           </p>
         </div>
 
-        {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {features.map((feature, i) => {
             const Icon = feature.icon;
@@ -88,7 +85,6 @@ export default function ProductSection() {
           })}
         </div>
 
-        {/* Bottom Note */}
         <div
           className="mt-12 flex items-center gap-3 px-5 py-4 rounded-[10px] border border-[#C8956C]/10 bg-[#C8956C]/[0.03] max-w-fit transition-all duration-700 delay-[600ms]"
           style={{

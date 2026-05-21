@@ -1,5 +1,5 @@
 import { type RouteConfig, index } from '@react-router/dev/routes';
 
 export default [
-	index('page.jsx'),
+	index('page.tsx'),
 ] satisfies RouteConfig;

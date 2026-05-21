@@ -1,4 +1,6 @@
-export const navLinks = [
+import type { NavLink } from "../types";
+
+export const navLinks: NavLink[] = [
   { label: "Beranda", href: "#hero" },
   { label: "Produk", href: "#product" },
   { label: "Teknologi", href: "#tech" },
@@ -7,7 +9,7 @@ export const navLinks = [
   { label: "Dashboard", href: "#dashboard" },
 ];
 
-export const quickLinks = [
+export const quickLinks: NavLink[] = [
   { label: "Beranda", href: "#hero" },
   { label: "Produk", href: "#product" },
   { label: "Teknologi", href: "#tech" },
@@ -16,7 +18,7 @@ export const quickLinks = [
   { label: "Dashboard", href: "#dashboard" },
 ];
 
-export const techLinks = [
+export const techLinks: NavLink[] = [
   { label: "IoT Architecture", href: "#tech" },
   { label: "Microservice API", href: "#tech" },
   { label: "Security Layer", href: "#tech" },

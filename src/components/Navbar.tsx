@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { navLinks } from "../data/navigation";
+import { getImagePath, getWebPPath } from "../config";
 
-// ATMA Logo (local asset)
-const LOGO_URL = "/image/atma-final.jpeg";
+const LOGO_URL = getImagePath("atma-final.jpeg");
+const LOGO_WEBP = getWebPPath("atma-final.jpeg");
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -30,7 +31,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollTo = (href) => {
+  const scrollTo = (href: string) => {
     const el = document.querySelector(href);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -57,7 +58,8 @@ export default function Navbar() {
             }}
             className="flex items-center gap-3 group"
           >
-            {LOGO_URL ? (
+            <picture>
+              <source srcSet={LOGO_WEBP} type="image/webp" />
               <img
                 src={LOGO_URL}
                 alt="ATMA Logo"
@@ -65,13 +67,7 @@ export default function Navbar() {
                 width={36}
                 height={36}
               />
-            ) : (
-              <div className="w-9 h-9 rounded-[8px] bg-gradient-to-br from-[#C8956C] to-[#8B5E3C] flex items-center justify-center">
-                <span className="text-white font-inter font-bold text-[14px] tracking-wide">
-                  A
-                </span>
-              </div>
-            )}
+            </picture>
             <span className="text-white font-inter font-semibold text-[18px] tracking-[0.02em] group-hover:text-[#C8956C] transition-colors duration-200">
               ATMA
             </span>

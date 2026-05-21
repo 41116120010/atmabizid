@@ -1,11 +1,12 @@
 import { Github, Mail, ExternalLink } from "lucide-react";
 import { quickLinks, techLinks } from "../data/navigation";
+import { getImagePath, getWebPPath } from "../config";
 
-// ATMA Logo (local asset)
-const LOGO_URL = "/image/atma-final.jpeg";
+const LOGO_URL = getImagePath("atma-final.jpeg");
+const LOGO_WEBP = getWebPPath("atma-final.jpeg");
 
 export default function Footer() {
-  const scrollTo = (href) => {
+  const scrollTo = (href: string) => {
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
@@ -13,18 +14,19 @@ export default function Footer() {
   return (
     <footer className="relative bg-[#060606] border-t border-white/5">
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
-        {/* Main Footer */}
         <div className="py-16 grid grid-cols-1 md:grid-cols-12 gap-12">
-          {/* Brand */}
           <div className="md:col-span-5">
             <div className="flex items-center gap-3 mb-5">
-              <img
-                src={LOGO_URL}
-                alt="ATMA Logo"
-                className="w-9 h-9 object-contain rounded-[8px]"
-                width={36}
-                height={36}
-              />
+              <picture>
+                <source srcSet={LOGO_WEBP} type="image/webp" />
+                <img
+                  src={LOGO_URL}
+                  alt="ATMA Logo"
+                  className="w-9 h-9 object-contain rounded-[8px]"
+                  width={36}
+                  height={36}
+                />
+              </picture>
               <span className="text-white font-inter font-semibold text-[18px] tracking-[0.02em]">
                 ATMA
               </span>
@@ -53,7 +55,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div className="md:col-span-3">
             <span className="text-[#999] text-[11px] font-inter font-semibold tracking-[0.12em] uppercase block mb-5">
               Navigasi
@@ -79,7 +80,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Tech Links */}
           <div className="md:col-span-4">
             <span className="text-[#999] text-[11px] font-inter font-semibold tracking-[0.12em] uppercase block mb-5">
               Teknologi
@@ -106,7 +106,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="py-6 border-t border-white/5 flex items-center justify-center">
           <span className="text-[#888] text-[12px] font-inter">
             © 2026 ATMA. All Rights Reserved.

@@ -6,11 +6,25 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
+  type LucideIcon,
 } from "lucide-react";
 
-function generateMockData() {
+interface MockDataPoint {
+  time: string;
+  temp: number;
+  humidity: number;
+}
+
+interface MiniChartProps {
+  data: MockDataPoint[];
+  dataKey: "temp" | "humidity";
+  color: string;
+  height?: number;
+}
+
+function generateMockData(): MockDataPoint[] {
   const now = Date.now();
-  const data = [];
+  const data: MockDataPoint[] = [];
   for (let i = 23; i >= 0; i--) {
     data.push({
       time: new Date(now - i * 3600000).toLocaleTimeString("id-ID", {
@@ -24,7 +38,7 @@ function generateMockData() {
   return data;
 }
 
-function MiniChart({ data, dataKey, color, height = 60 }) {
+function MiniChart({ data, dataKey, color, height = 60 }: MiniChartProps) {
   const values = data.map((d) => d[dataKey]);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -46,6 +60,7 @@ function MiniChart({ data, dataKey, color, height = 60 }) {
       viewBox={`0 0 ${width} ${height}`}
       className="w-full"
       style={{ height }}
+      aria-hidden="true"
     >
       <defs>
         <linearGradient id={`grad-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
@@ -68,9 +83,9 @@ function MiniChart({ data, dataKey, color, height = 60 }) {
 
 export default function DashboardSection() {
   const [visible, setVisible] = useState(false);
-  const [mockData, setMockData] = useState([]);
+  const [mockData, setMockData] = useState<MockDataPoint[]>([]);
   const isOnline = false; // Will be dynamic when real sensor is connected
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMockData(generateMockData());
@@ -95,7 +110,14 @@ export default function DashboardSection() {
   const latestHumidity =
     mockData.length > 0 ? mockData[mockData.length - 1].humidity : 0;
 
-  const gaugeCards = [
+  const gaugeCards: {
+    label: string;
+    value: string;
+    icon: LucideIcon;
+    color: string;
+    chartKey: "temp" | "humidity";
+    range: string;
+  }[] = [
     {
       label: "Suhu",
       value: `${latestTemp.toFixed(1)}°C`,
@@ -123,7 +145,6 @@ export default function DashboardSection() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[1000px] h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
-        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div
             className="max-w-[500px] transition-all duration-700"
@@ -145,7 +166,6 @@ export default function DashboardSection() {
             </p>
           </div>
 
-          {/* Connection Status */}
           <div
             className="flex items-center gap-3 transition-all duration-700 delay-200"
             style={{
@@ -183,7 +203,6 @@ export default function DashboardSection() {
           </div>
         </div>
 
-        {/* Gauge Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
           {gaugeCards.map((card, i) => {
             const Icon = card.icon;
@@ -219,7 +238,6 @@ export default function DashboardSection() {
                   </span>
                 </div>
 
-                {/* Chart */}
                 {mockData.length > 0 && (
                   <MiniChart
                     data={mockData}
@@ -242,7 +260,6 @@ export default function DashboardSection() {
           })}
         </div>
 
-        {/* System Status */}
         <div
           className="p-5 md:p-6 rounded-[14px] border border-white/5 bg-white/[0.01] transition-all duration-700 delay-[500ms]"
           style={{
@@ -258,10 +275,10 @@ export default function DashboardSection() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Sensor DHT", status: "Planned", color: "#555" },
-              { label: "WiFi Module", status: "Planned", color: "#555" },
-              { label: "API Gateway", status: "Planned", color: "#555" },
-              { label: "Database", status: "Planned", color: "#555" },
+              { label: "Sensor DHT", status: "Planned", color: "#9A9A9A" },
+              { label: "WiFi Module", status: "Planned", color: "#9A9A9A" },
+              { label: "API Gateway", status: "Planned", color: "#9A9A9A" },
+              { label: "Database", status: "Planned", color: "#9A9A9A" },
             ].map((item) => (
               <div
                 key={item.label}
@@ -284,12 +301,9 @@ export default function DashboardSection() {
           </div>
         </div>
 
-        {/* Note */}
         <div
           className="mt-8 flex items-center gap-3 px-5 py-4 rounded-[10px] border border-[#C8956C]/10 bg-[#C8956C]/[0.03] max-w-fit transition-all duration-700 delay-[600ms]"
-          style={{
-            opacity: visible ? 1 : 0,
-          }}
+          style={{ opacity: visible ? 1 : 0 }}
         >
           <div className="w-2 h-2 rounded-full bg-[#C8956C]/60" />
           <span className="text-[#999] text-[13px] font-inter">

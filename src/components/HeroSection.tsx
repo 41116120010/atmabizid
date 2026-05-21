@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
-import { Cpu, Wifi, Shield } from "lucide-react";
+import { Cpu, Wifi, Shield, type LucideIcon } from "lucide-react";
 
-const stats = [
+interface Stat {
+  label: string;
+  value: string;
+  icon: LucideIcon;
+}
+
+const stats: Stat[] = [
   { label: "Sensor Aktif", value: "2+", icon: Cpu },
   { label: "IoT Connected", value: "Real-time", icon: Wifi },
   { label: "Encrypted", value: "AES-256", icon: Shield },
@@ -78,7 +84,7 @@ export default function HeroSection() {
 
           {/* Subtitle */}
           <p
-            className="mt-8 max-w-[520px] text-[#888] text-[15px] md:text-[17px] font-inter font-normal leading-[1.7] transition-all duration-700 delay-200"
+            className="mt-8 max-w-[520px] text-[#A3A3A3] text-[15px] md:text-[17px] font-inter font-normal leading-[1.7] transition-all duration-700 delay-200"
             style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? "translateY(0)" : "translateY(20px)",

@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Cpu, Server, Shield, Globe, Database, Lock } from "lucide-react";
 import { layers, subjects } from "../data/tech";
 
 export default function TechSection() {
   const [visible, setVisible] = useState(false);
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -29,7 +28,6 @@ export default function TechSection() {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[1000px] h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
-        {/* Header */}
         <div
           className="max-w-[600px] mb-20 transition-all duration-700"
           style={{
@@ -50,7 +48,6 @@ export default function TechSection() {
           </p>
         </div>
 
-        {/* Architecture Layers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-16">
           {layers.map((layer, i) => {
             const Icon = layer.icon;
@@ -65,7 +62,6 @@ export default function TechSection() {
                   transitionDuration: "700ms",
                 }}
               >
-                {/* Layer Label */}
                 <span
                   className="text-[10px] font-inter font-semibold tracking-[0.15em] uppercase mb-4 block"
                   style={{ color: layer.color }}
@@ -109,7 +105,6 @@ export default function TechSection() {
           })}
         </div>
 
-        {/* Subjects Integration */}
         <div
           className="p-6 md:p-8 rounded-[14px] border border-white/5 bg-white/[0.01] transition-all duration-700 delay-[700ms]"
           style={{
