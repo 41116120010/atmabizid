@@ -65,7 +65,7 @@ export default function HeroSection() {
               transform: mounted ? "translateY(0)" : "translateY(30px)",
             }}
           >
-            <span className="block text-[#666] text-[14px] md:text-[16px] font-inter font-medium tracking-[0.15em] uppercase mb-4">
+            <span className="block text-[#9A9A9A] text-[14px] md:text-[16px] font-inter font-medium tracking-[0.15em] uppercase mb-4">
               IoT Coffee Dryer Machine
             </span>
             <span className="block text-white font-crimson-text text-[48px] md:text-[72px] lg:text-[88px] font-bold leading-[0.95] tracking-[-0.02em]">
@@ -135,7 +135,7 @@ export default function HeroSection() {
                   <span className="text-white font-inter font-semibold text-[16px]">
                     {stat.value}
                   </span>
-                  <span className="text-[#666] font-inter text-[11px] tracking-[0.06em] uppercase">
+                  <span className="text-[#9A9A9A] font-inter text-[11px] tracking-[0.06em] uppercase">
                     {stat.label}
                   </span>
                 </div>

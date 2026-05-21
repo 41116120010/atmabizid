@@ -1,3 +1,4 @@
+import ErrorBoundary from "../components/ErrorBoundary";
 import Navbar from "../components/Navbar";
 import HeroSection from "../components/HeroSection";
 import ProductSection from "../components/ProductSection";
@@ -9,15 +10,24 @@ import Footer from "../components/Footer";
 
 export default function HomePage() {
   return (
-    <div className="bg-[#0A0A0A] min-h-screen">
-      <Navbar />
-      <HeroSection />
-      <ProductSection />
-      <TechSection />
-      <RoadmapSection />
-      <TeamSection />
-      <DashboardSection />
-      <Footer />
-    </div>
+    <ErrorBoundary>
+      <div className="bg-[#0A0A0A] min-h-screen">
+        {/* Skip Navigation Link for Accessibility */}
+        <a
+          href="#product"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-[#C8956C] focus:text-[#0A0A0A] focus:rounded-lg focus:font-inter focus:font-semibold focus:text-sm"
+        >
+          Langsung ke konten utama
+        </a>
+        <Navbar />
+        <HeroSection />
+        <ProductSection />
+        <TechSection />
+        <RoadmapSection />
+        <TeamSection />
+        <DashboardSection />
+        <Footer />
+      </div>
+    </ErrorBoundary>
   );
 }

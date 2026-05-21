@@ -1,56 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, Circle, Clock, ChevronRight } from "lucide-react";
-
-const phases = [
-  {
-    phase: "Phase 1",
-    title: "Research & Planning",
-    period: "Minggu 1 – 2",
-    status: "completed",
-    items: [
-      { text: "Riset kebutuhan pengeringan kopi", done: true },
-      { text: "Pemilihan sensor (DHT22/DHT11)", done: true },
-      { text: "Desain arsitektur sistem", done: true },
-      { text: "Pembagian tugas tim", done: true },
-    ],
-  },
-  {
-    phase: "Phase 2",
-    title: "Hardware Assembly",
-    period: "Minggu 3 – 5",
-    status: "completed",
-    items: [
-      { text: "Perakitan mikrokontroler & sensor", done: true },
-      { text: "Kalibrasi sensor suhu & kelembaban", done: true },
-      { text: "Integrasi dengan modul WiFi", done: true },
-      { text: "Testing hardware prototype", done: true },
-    ],
-  },
-  {
-    phase: "Phase 3",
-    title: "Software & Microservice",
-    period: "Minggu 5 – 8",
-    status: "in-progress",
-    items: [
-      { text: "Pengembangan API Gateway", done: false },
-      { text: "Service: Data Collection", done: false },
-      { text: "Service: Data Processing", done: false },
-      { text: "Dashboard monitoring web", done: false },
-    ],
-  },
-  {
-    phase: "Phase 4",
-    title: "Security & Deployment",
-    period: "Minggu 8 – 10",
-    status: "upcoming",
-    items: [
-      { text: "Implementasi enkripsi data", done: false },
-      { text: "Konfigurasi jaringan & server", done: false },
-      { text: "Penetration testing", done: false },
-      { text: "Deployment & dokumentasi", done: false },
-    ],
-  },
-];
+import { phases } from "../data/roadmap";
 
 function getStatusConfig(status) {
   if (status === "completed")
@@ -126,7 +76,7 @@ export default function RoadmapSection() {
               <span className="text-white font-inter font-bold text-[28px]">
                 {progressPercent}%
               </span>
-              <span className="block text-[#666] text-[11px] font-inter tracking-[0.06em] uppercase mt-1">
+              <span className="block text-[#9A9A9A] text-[11px] font-inter tracking-[0.06em] uppercase mt-1">
                 {completedCount}/{totalCount} Phase
               </span>
             </div>
@@ -210,11 +160,11 @@ export default function RoadmapSection() {
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[#555] text-[12px] font-inter">
+                          <span className="text-[#9A9A9A] text-[12px] font-inter">
                             {phase.phase}
                           </span>
                           <span className="text-[#333] text-[12px]">·</span>
-                          <span className="text-[#555] text-[12px] font-inter flex items-center gap-1">
+                          <span className="text-[#9A9A9A] text-[12px] font-inter flex items-center gap-1">
                             <Clock size={11} />
                             {phase.period}
                           </span>
@@ -224,7 +174,7 @@ export default function RoadmapSection() {
                       {/* Expand Icon */}
                       <ChevronRight
                         size={18}
-                        className={`text-[#555] transition-transform duration-200 flex-shrink-0 ${
+                        className={`text-[#9A9A9A] transition-transform duration-200 flex-shrink-0 ${
                           isExpanded ? "rotate-90" : ""
                         }`}
                       />
@@ -253,7 +203,7 @@ export default function RoadmapSection() {
                             )}
                             <span
                               className={`text-[13px] font-inter leading-[1.5] ${
-                                item.done ? "text-[#999]" : "text-[#555]"
+                                item.done ? "text-[#999]" : "text-[#9A9A9A]"
                               }`}
                             >
                               {item.text}
@@ -265,10 +215,10 @@ export default function RoadmapSection() {
                       {/* Mini progress */}
                       <div className="mt-5 pt-4 border-t border-white/5">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-[#555] text-[11px] font-inter">
+                          <span className="text-[#9A9A9A] text-[11px] font-inter">
                             Progress
                           </span>
-                          <span className="text-[#777] text-[11px] font-inter">
+                          <span className="text-[#A3A3A3] text-[11px] font-inter">
                             {phase.items.filter((i) => i.done).length}/
                             {phase.items.length}
                           </span>

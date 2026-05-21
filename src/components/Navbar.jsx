@@ -1,17 +1,9 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { navLinks } from "../data/navigation";
 
 // ATMA Logo (local asset)
 const LOGO_URL = "/image/atma-final.jpeg";
-
-const navLinks = [
-  { label: "Beranda", href: "#hero" },
-  { label: "Produk", href: "#product" },
-  { label: "Teknologi", href: "#tech" },
-  { label: "Roadmap", href: "#roadmap" },
-  { label: "Tim", href: "#team" },
-  { label: "Dashboard", href: "#dashboard" },
-];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);

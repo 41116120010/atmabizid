@@ -1,34 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Thermometer,
-  Droplets,
-  Zap,
-  BarChart3,
-  ArrowRight,
-} from "lucide-react";
-
-const features = [
-  {
-    icon: Thermometer,
-    title: "Monitoring Suhu",
-    desc: "Sensor suhu presisi tinggi memantau temperatur pengeringan secara real-time untuk hasil optimal.",
-  },
-  {
-    icon: Droplets,
-    title: "Kontrol Kelembaban",
-    desc: "Kelembaban udara dipantau terus-menerus untuk memastikan kadar air kopi mencapai standar ideal.",
-  },
-  {
-    icon: Zap,
-    title: "Otomasi Cerdas",
-    desc: "Sistem otomatis menyesuaikan parameter pengeringan berdasarkan data sensor tanpa intervensi manual.",
-  },
-  {
-    icon: BarChart3,
-    title: "Data Analytics",
-    desc: "Seluruh data pengeringan tercatat dan dapat dianalisis untuk peningkatan kualitas berkelanjutan.",
-  },
-];
+import { ArrowRight } from "lucide-react";
+import { features } from "../data/product";
 
 export default function ProductSection() {
   const [visible, setVisible] = useState(false);
@@ -73,7 +45,7 @@ export default function ProductSection() {
             Mesin Pengering Kopi
             <span className="text-[#C8956C]"> Berbasis IoT</span>
           </h2>
-          <p className="mt-5 text-[#777] text-[15px] font-inter leading-[1.7]">
+          <p className="mt-5 text-[#A3A3A3] text-[15px] font-inter leading-[1.7]">
             Menggabungkan teknologi Internet of Things dengan proses pengeringan
             kopi tradisional. Setiap parameter dimonitor dan dikontrol secara
             digital untuk menghasilkan biji kopi dengan kualitas terbaik.
@@ -103,7 +75,7 @@ export default function ProductSection() {
                     <h3 className="text-white font-inter font-semibold text-[16px] mb-2">
                       {feature.title}
                     </h3>
-                    <p className="text-[#777] font-inter text-[14px] leading-[1.7]">
+                    <p className="text-[#A3A3A3] font-inter text-[14px] leading-[1.7]">
                       {feature.desc}
                     </p>
                   </div>

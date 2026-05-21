@@ -1,23 +1,8 @@
 import { Github, Mail, ExternalLink } from "lucide-react";
+import { quickLinks, techLinks } from "../data/navigation";
 
 // ATMA Logo (local asset)
 const LOGO_URL = "/image/atma-final.jpeg";
-
-const quickLinks = [
-  { label: "Beranda", href: "#hero" },
-  { label: "Produk", href: "#product" },
-  { label: "Teknologi", href: "#tech" },
-  { label: "Roadmap", href: "#roadmap" },
-  { label: "Tim", href: "#team" },
-  { label: "Dashboard", href: "#dashboard" },
-];
-
-const techLinks = [
-  { label: "IoT Architecture", href: "#tech" },
-  { label: "Microservice API", href: "#tech" },
-  { label: "Security Layer", href: "#tech" },
-  { label: "Network Config", href: "#tech" },
-];
 
 export default function Footer() {
   const scrollTo = (href) => {

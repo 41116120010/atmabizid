@@ -1,48 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Cpu, Server, Shield, Globe, Database, Lock } from "lucide-react";
-
-const layers = [
-  {
-    label: "DEVICE LAYER",
-    title: "IoT & Sensor",
-    desc: "Mikrokontroler membaca data suhu dan kelembaban dari sensor, lalu mengirimkan ke cloud.",
-    icon: Cpu,
-    tags: ["ESP32/Arduino", "DHT Sensor", "MQTT Protocol"],
-    color: "#C8956C",
-  },
-  {
-    label: "SERVICE LAYER",
-    title: "Microservice Architecture",
-    desc: "Data diproses melalui arsitektur microservice yang modular, scalable, dan mudah di-maintain.",
-    icon: Server,
-    tags: ["REST API", "API Gateway", "Message Queue"],
-    color: "#7C9CBF",
-  },
-  {
-    label: "SECURITY LAYER",
-    title: "Keamanan & Enkripsi",
-    desc: "Seluruh transmisi data dilindungi enkripsi end-to-end dengan autentikasi berlapis.",
-    icon: Shield,
-    tags: ["TLS/SSL", "Token Auth", "Firewall"],
-    color: "#8BC49E",
-  },
-  {
-    label: "NETWORK LAYER",
-    title: "Administrasi Jaringan",
-    desc: "Infrastruktur jaringan dikonfigurasi untuk keandalan tinggi dan latensi rendah.",
-    icon: Globe,
-    tags: ["VLAN Config", "DNS Management", "Load Balancer"],
-    color: "#B89ACA",
-  },
-];
-
-const subjects = [
-  { name: "Internet of Things", icon: Cpu },
-  { name: "Pemrograman Microservice", icon: Database },
-  { name: "Keamanan Komputer & Jaringan", icon: Lock },
-  { name: "Administrasi Jaringan & Server", icon: Globe },
-  { name: "Kewirausahaan", icon: Server },
-];
+import { layers, subjects } from "../data/tech";
 
 export default function TechSection() {
   const [visible, setVisible] = useState(false);
@@ -86,7 +44,7 @@ export default function TechSection() {
             Teknologi di Balik
             <span className="text-[#C8956C]"> ATMA</span>
           </h2>
-          <p className="mt-5 text-[#777] text-[15px] font-inter leading-[1.7]">
+          <p className="mt-5 text-[#A3A3A3] text-[15px] font-inter leading-[1.7]">
             Proyek ini mengintegrasikan 5 mata kuliah semester 4 ke dalam satu
             sistem yang utuh. Setiap layer dirancang untuk saling melengkapi.
           </p>
@@ -126,7 +84,7 @@ export default function TechSection() {
                     <h3 className="text-white font-inter font-semibold text-[15px] mb-2">
                       {layer.title}
                     </h3>
-                    <p className="text-[#777] font-inter text-[13px] leading-[1.7] mb-4">
+                    <p className="text-[#A3A3A3] font-inter text-[13px] leading-[1.7] mb-4">
                       {layer.desc}
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -159,7 +117,7 @@ export default function TechSection() {
             transform: visible ? "translateY(0)" : "translateY(20px)",
           }}
         >
-          <span className="text-[#666] text-[11px] font-inter font-medium tracking-[0.1em] uppercase block mb-5">
+          <span className="text-[#9A9A9A] text-[11px] font-inter font-medium tracking-[0.1em] uppercase block mb-5">
             Integrasi Mata Kuliah Semester 4
           </span>
           <div className="flex flex-wrap gap-3">

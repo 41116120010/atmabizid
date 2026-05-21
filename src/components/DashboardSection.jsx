@@ -69,7 +69,7 @@ function MiniChart({ data, dataKey, color, height = 60 }) {
 export default function DashboardSection() {
   const [visible, setVisible] = useState(false);
   const [mockData, setMockData] = useState([]);
-  const [isOnline, setIsOnline] = useState(false);
+  const isOnline = false; // Will be dynamic when real sensor is connected
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export default function DashboardSection() {
               Live
               <span className="text-[#C8956C]"> Monitoring</span>
             </h2>
-            <p className="mt-5 text-[#777] text-[15px] font-inter leading-[1.7]">
+            <p className="mt-5 text-[#A3A3A3] text-[15px] font-inter leading-[1.7]">
               Preview dashboard monitoring real-time. Data di bawah ini adalah
               simulasi yang nantinya akan terhubung ke sensor asli setelah hardware siap.
             </p>
@@ -175,7 +175,7 @@ export default function DashboardSection() {
             </div>
             <button
               onClick={() => setMockData(generateMockData())}
-              className="w-9 h-9 flex items-center justify-center rounded-[8px] border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-[#666] hover:text-white transition-all"
+              className="w-9 h-9 flex items-center justify-center rounded-[8px] border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-[#9A9A9A] hover:text-white transition-all"
               aria-label="Refresh Data"
             >
               <RefreshCw size={14} />
@@ -209,7 +209,7 @@ export default function DashboardSection() {
                       <span className="text-[#999] text-[12px] font-inter block">
                         {card.label}
                       </span>
-                      <span className="text-[#555] text-[11px] font-inter">
+                      <span className="text-[#9A9A9A] text-[11px] font-inter">
                         {card.range}
                       </span>
                     </div>
@@ -275,7 +275,7 @@ export default function DashboardSection() {
                   <span className="text-[#ccc] text-[12px] font-inter font-medium block">
                     {item.label}
                   </span>
-                  <span className="text-[#555] text-[10px] font-inter">
+                  <span className="text-[#9A9A9A] text-[10px] font-inter">
                     {item.status}
                   </span>
                 </div>
