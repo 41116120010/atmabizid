@@ -121,42 +121,44 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-[#0A0A0A]/98 backdrop-blur-xl border-t border-white/5">
-          <div className="px-6 py-4 flex flex-col gap-1">
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.href.replace("#", "");
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollTo(link.href);
-                  }}
-                  className={`px-4 py-3 rounded-[8px] text-[14px] font-inter font-medium transition-colors ${
-                    isActive
-                      ? "text-[#C8956C] bg-[#C8956C]/8"
-                      : "text-[#999] hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  {link.label}
-                </a>
-              );
-            })}
-            <a
-              href="#dashboard"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollTo("#dashboard");
-              }}
-              className="mt-2 px-4 py-3 bg-[#C8956C] text-[#0A0A0A] text-[14px] font-inter font-semibold rounded-[8px] text-center"
-            >
-              Live Monitor
-            </a>
-          </div>
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          mobileOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
+        } bg-[#0A0A0A]/98 backdrop-blur-xl border-t border-white/5`}
+      >
+        <div className="px-6 py-4 flex flex-col gap-1">
+          {navLinks.map((link) => {
+            const isActive = activeSection === link.href.replace("#", "");
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollTo(link.href);
+                }}
+                className={`px-4 py-3 rounded-[8px] text-[14px] font-inter font-medium transition-colors ${
+                  isActive
+                    ? "text-[#C8956C] bg-[#C8956C]/8"
+                    : "text-[#999] hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {link.label}
+              </a>
+            );
+          })}
+          <a
+            href="#dashboard"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollTo("#dashboard");
+            }}
+            className="mt-2 px-4 py-3 bg-[#C8956C] text-[#0A0A0A] text-[14px] font-inter font-semibold rounded-[8px] text-center"
+          >
+            Live Monitor
+          </a>
         </div>
-      )}
+      </div>
     </nav>
   );
 }

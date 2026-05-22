@@ -108,7 +108,7 @@ export default function Footer() {
 
         <div className="py-6 border-t border-white/5 flex items-center justify-center">
           <span className="text-[#888] text-[12px] font-inter">
-            © 2026 ATMA. All Rights Reserved.
+            © {new Date().getFullYear()} ATMA. All Rights Reserved.
           </span>
         </div>
       </div>

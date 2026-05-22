@@ -18,3 +18,9 @@
 .env.local
 .env.*.local
 .vercel
+
+# Audit reports (internal only)
+Documentation.txt
+
+# Kiro
+.kiro
