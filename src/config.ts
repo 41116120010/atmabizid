@@ -4,7 +4,7 @@
  */
 
 export const config = {
-  siteUrl: import.meta.env.VITE_SITE_URL || "https://atma.biz.id",
+  siteUrl: import.meta.env.VITE_SITE_URL || "https://www.atma.biz.id",
   imageBasePath: import.meta.env.VITE_IMAGE_BASE_PATH || "/image",
 } as const;
 
