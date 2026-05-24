@@ -111,7 +111,7 @@ export function ErrorBoundary() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -126,8 +126,22 @@ export function ErrorBoundary() {
       </div>
 
       <div className="relative z-10 text-center max-w-lg">
-        {/* Error code */}
-        <div className="mb-8">
+        {/* Logo */}
+        <a href="/" className="inline-flex items-center gap-3 mb-12 group">
+          <img
+            src="/image/atma-final.jpeg"
+            alt="ATMA Logo"
+            className="w-9 h-9 object-contain"
+            width={36}
+            height={36}
+          />
+          <span className="text-white font-inter font-semibold text-[18px] tracking-[0.02em] group-hover:text-[#C8956C] transition-colors duration-200">
+            ATMA
+          </span>
+        </a>
+
+        {/* Error code - large watermark */}
+        <div className="mb-6">
           <span className="text-[120px] md:text-[160px] font-crimson-text font-bold leading-none text-white/[0.04] select-none">
             {status}
           </span>
@@ -136,13 +150,13 @@ export function ErrorBoundary() {
         {/* Icon */}
         <div className="w-16 h-16 mx-auto mb-8 rounded-full bg-[#C8956C]/10 border border-[#C8956C]/20 flex items-center justify-center">
           {status === 404 ? (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C8956C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C8956C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
               <path d="M8 11h6" />
             </svg>
           ) : (
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C8956C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C8956C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
               <path d="M12 9v4" />
               <path d="M12 17h.01" />
@@ -152,7 +166,7 @@ export function ErrorBoundary() {
 
         {/* Status badge */}
         <div className="inline-flex items-center gap-2 px-4 py-[7px] rounded-[8px] border border-[#C8956C]/20 bg-[#C8956C]/5 mb-6">
-          <div className="w-[6px] h-[6px] rounded-full bg-[#C8956C]" />
+          <div className="w-[6px] h-[6px] rounded-full bg-[#C8956C] animate-pulse" />
           <span className="text-[#C8956C] text-[12px] font-inter font-medium tracking-[0.08em] uppercase">
             Error {status}
           </span>
