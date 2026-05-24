@@ -5,7 +5,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/((?!image/|fonts/|assets/|.*\\..*).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/__spa-fallback.html" }
   ],
   "headers": [
     {
