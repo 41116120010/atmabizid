@@ -18,7 +18,7 @@ export default function Footer() {
           <div className="md:col-span-5">
             <div className="flex items-center gap-3 mb-5">
               <picture>
-                <source srcSet={LOGO_WEBP} type="image/webp" />
+                {LOGO_WEBP && <source srcSet={LOGO_WEBP} type="image/webp" />}
                 <img
                   src={LOGO_URL}
                   alt="ATMA Logo"

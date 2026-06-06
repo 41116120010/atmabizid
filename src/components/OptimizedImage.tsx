@@ -26,7 +26,7 @@ export default function OptimizedImage({
 
   return (
     <picture>
-      <source srcSet={webpSrc} type="image/webp" />
+      {webpSrc && <source srcSet={webpSrc} type="image/webp" />}
       <img
         src={fallbackSrc}
         alt={alt}

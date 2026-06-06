@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { useInView } from "../hooks/useInView";
 import { CheckCircle2, Circle, Clock, ChevronRight } from "lucide-react";
 import { phases } from "../data/roadmap";
 import type { RoadmapPhase } from "../types";
@@ -12,23 +13,8 @@ function getStatusConfig(status: RoadmapPhase["status"]) {
 }
 
 export default function RoadmapSection() {
-  const [visible, setVisible] = useState(false);
+  const { ref: sectionRef, visible } = useInView(0.1);
   const [expandedPhase, setExpandedPhase] = useState(1);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.1 },
-    );
-    const current = sectionRef.current;
-    if (current) observer.observe(current);
-    return () => {
-      if (current) observer.unobserve(current);
-    };
-  }, []);
 
   const completedCount = phases.filter((p) => p.status === "completed").length;
   const totalCount = phases.length;
@@ -42,6 +28,7 @@ export default function RoadmapSection() {
     <section
       id="roadmap"
       ref={sectionRef}
+      aria-labelledby="roadmap-heading"
       className="relative py-28 md:py-36 bg-[#0A0A0A]"
     >
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[1000px] h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
@@ -49,27 +36,19 @@ export default function RoadmapSection() {
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div
-            className="max-w-[500px] transition-all duration-700"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(30px)",
-            }}
+            className={`max-w-[500px] fade-in-up ${visible ? 'visible' : ''}`}
           >
             <span className="text-[#C8956C] text-[12px] font-inter font-medium tracking-[0.12em] uppercase">
               Development Roadmap
             </span>
-            <h2 className="mt-4 text-white font-crimson-text text-[36px] md:text-[48px] font-bold leading-[1.1]">
+            <h2 id="roadmap-heading" className="mt-4 text-white font-crimson-text text-[36px] md:text-[48px] font-bold leading-[1.1]">
               Progress
               <span className="text-[#C8956C]"> Pengembangan</span>
             </h2>
           </div>
 
           <div
-            className="flex items-center gap-5 transition-all duration-700 delay-200"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(20px)",
-            }}
+            className={`flex items-center gap-5 delay-200 fade-in-up-sm ${visible ? 'visible' : ''}`}
           >
             <div className="text-right">
               <span className="text-white font-inter font-bold text-[28px]">
@@ -99,16 +78,16 @@ export default function RoadmapSection() {
               return (
                 <div
                   key={phase.phase}
-                  className="transition-all duration-700"
+                  className={`fade-in-up ${visible ? 'visible' : ''}`}
                   style={{
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? "translateY(0)" : "translateY(25px)",
                     transitionDelay: `${300 + i * 120}ms`,
                   }}
                 >
                   <button
                     onClick={() => setExpandedPhase(isExpanded ? -1 : i)}
                     className="w-full text-left"
+                    aria-expanded={isExpanded}
+                    aria-controls={`phase-content-${i}`}
                   >
                     <div
                       className={`flex items-center gap-5 p-5 md:p-6 rounded-[12px] border transition-all duration-200 ${
@@ -158,7 +137,7 @@ export default function RoadmapSection() {
                           <span className="text-[#9A9A9A] text-[12px] font-inter">
                             {phase.phase}
                           </span>
-                          <span className="text-[#333] text-[12px]">·</span>
+                          <span className="text-[#777] text-[12px]">·</span>
                           <span className="text-[#9A9A9A] text-[12px] font-inter flex items-center gap-1">
                             <Clock size={11} />
                             {phase.period}
@@ -176,7 +155,11 @@ export default function RoadmapSection() {
                   </button>
 
                   {isExpanded && (
-                    <div className="mt-2 ml-0 md:ml-[42px] p-5 md:p-6 rounded-[12px] border border-white/5 bg-white/[0.01]">
+                    <div
+                      id={`phase-content-${i}`}
+                      role="region"
+                      className="mt-2 ml-0 md:ml-[42px] p-5 md:p-6 rounded-[12px] border border-white/5 bg-white/[0.01]"
+                    >
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {phase.items.map((item) => (
                           <div

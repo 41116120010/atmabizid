@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { useInView } from "../hooks/useInView";
 import {
   Thermometer,
   Droplets,
   Activity,
-  Wifi,
   WifiOff,
   RefreshCw,
   type LucideIcon,
@@ -82,27 +82,11 @@ function MiniChart({ data, dataKey, color, height = 60 }: MiniChartProps) {
 }
 
 export default function DashboardSection() {
-  const [visible, setVisible] = useState(false);
+  const { ref: sectionRef, visible } = useInView(0.1);
   const [mockData, setMockData] = useState<MockDataPoint[]>([]);
-  const isOnline = false; // Will be dynamic when real sensor is connected
-  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     setMockData(generateMockData());
-  }, []);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.1 },
-    );
-    const current = sectionRef.current;
-    if (current) observer.observe(current);
-    return () => {
-      if (current) observer.unobserve(current);
-    };
   }, []);
 
   const latestTemp =
@@ -140,6 +124,7 @@ export default function DashboardSection() {
     <section
       id="dashboard"
       ref={sectionRef}
+      aria-labelledby="dashboard-heading"
       className="relative py-28 md:py-36 bg-[#0A0A0A]"
     >
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[1000px] h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
@@ -147,16 +132,12 @@ export default function DashboardSection() {
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16">
           <div
-            className="max-w-[500px] transition-all duration-700"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(30px)",
-            }}
+            className={`max-w-[500px] fade-in-up ${visible ? 'visible' : ''}`}
           >
             <span className="text-[#C8956C] text-[12px] font-inter font-medium tracking-[0.12em] uppercase">
               IoT Dashboard
             </span>
-            <h2 className="mt-4 text-white font-crimson-text text-[36px] md:text-[48px] font-bold leading-[1.1]">
+            <h2 id="dashboard-heading" className="mt-4 text-white font-crimson-text text-[36px] md:text-[48px] font-bold leading-[1.1]">
               Live
               <span className="text-[#C8956C]"> Monitoring</span>
             </h2>
@@ -167,30 +148,13 @@ export default function DashboardSection() {
           </div>
 
           <div
-            className="flex items-center gap-3 transition-all duration-700 delay-200"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(20px)",
-            }}
+            className={`flex items-center gap-3 delay-200 fade-in-up-sm ${visible ? 'visible' : ''}`}
           >
-            <div
-              className={`flex items-center gap-2 px-4 py-[9px] rounded-[8px] border ${
-                isOnline
-                  ? "border-[#8BC49E]/20 bg-[#8BC49E]/5"
-                  : "border-[#E8734A]/20 bg-[#E8734A]/5"
-              }`}
-            >
-              {isOnline ? (
-                <Wifi size={14} className="text-[#8BC49E]" />
-              ) : (
-                <WifiOff size={14} className="text-[#E8734A]" />
-              )}
-              <span
-                className={`text-[12px] font-inter font-medium ${
-                  isOnline ? "text-[#8BC49E]" : "text-[#E8734A]"
-                }`}
-              >
-                {isOnline ? "Sensor Online" : "Demo Mode"}
+            {/* TODO(Phase-3): Replace with real sensor WebSocket connection */}
+            <div className="flex items-center gap-2 px-4 py-[9px] rounded-[8px] border border-[#E8734A]/20 bg-[#E8734A]/5">
+              <WifiOff size={14} className="text-[#E8734A]" />
+              <span className="text-[12px] font-inter font-medium text-[#E8734A]">
+                Demo Mode
               </span>
             </div>
             <button
@@ -209,10 +173,8 @@ export default function DashboardSection() {
             return (
               <div
                 key={card.label}
-                className="p-6 md:p-7 rounded-[14px] border border-white/5 bg-white/[0.015] transition-all duration-700"
+                className={`p-6 md:p-7 rounded-[14px] border border-white/5 bg-white/[0.015] fade-in-up ${visible ? 'visible' : ''}`}
                 style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "translateY(0)" : "translateY(25px)",
                   transitionDelay: `${300 + i * 120}ms`,
                 }}
               >
@@ -248,11 +210,11 @@ export default function DashboardSection() {
                 )}
 
                 <div className="flex items-center justify-between mt-3">
-                  <span className="text-[#333] text-[10px] font-inter">
-                    24h ago
+                  <span className="text-[#777] text-[10px] font-inter">
+                    24 jam lalu
                   </span>
-                  <span className="text-[#333] text-[10px] font-inter">
-                    Now
+                  <span className="text-[#777] text-[10px] font-inter">
+                    Sekarang
                   </span>
                 </div>
               </div>
@@ -261,24 +223,20 @@ export default function DashboardSection() {
         </div>
 
         <div
-          className="p-5 md:p-6 rounded-[14px] border border-white/5 bg-white/[0.01] transition-all duration-700 delay-[500ms]"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-          }}
+          className={`p-5 md:p-6 rounded-[14px] border border-white/5 bg-white/[0.01] delay-[500ms] fade-in-up-sm ${visible ? 'visible' : ''}`}
         >
           <div className="flex items-center gap-2 mb-4">
             <Activity size={14} className="text-[#C8956C]" />
             <span className="text-[#999] text-[12px] font-inter font-medium tracking-[0.06em] uppercase">
-              System Status
+              Status Sistem
             </span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Sensor DHT", status: "Planned", color: "#9A9A9A" },
-              { label: "WiFi Module", status: "Planned", color: "#9A9A9A" },
-              { label: "API Gateway", status: "Planned", color: "#9A9A9A" },
-              { label: "Database", status: "Planned", color: "#9A9A9A" },
+              { label: "Sensor DHT", status: "Direncanakan", color: "#9A9A9A" },
+              { label: "WiFi Module", status: "Direncanakan", color: "#9A9A9A" },
+              { label: "API Gateway", status: "Direncanakan", color: "#9A9A9A" },
+              { label: "Database", status: "Direncanakan", color: "#9A9A9A" },
             ].map((item) => (
               <div
                 key={item.label}
@@ -302,8 +260,7 @@ export default function DashboardSection() {
         </div>
 
         <div
-          className="mt-8 flex items-center gap-3 px-5 py-4 rounded-[10px] border border-[#C8956C]/10 bg-[#C8956C]/[0.03] max-w-fit transition-all duration-700 delay-[600ms]"
-          style={{ opacity: visible ? 1 : 0 }}
+          className={`mt-8 flex items-center gap-3 px-5 py-4 rounded-[10px] border border-[#C8956C]/10 bg-[#C8956C]/[0.03] max-w-fit delay-[600ms] fade-in-up-sm ${visible ? 'visible' : ''}`}
         >
           <div className="w-2 h-2 rounded-full bg-[#C8956C]/60" />
           <span className="text-[#999] text-[13px] font-inter">

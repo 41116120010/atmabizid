@@ -21,19 +21,20 @@
 		"format:check": "prettier --check ."
 	},
 	"dependencies": {
-		"@react-router/dev": "^7.6.0",
-		"@react-router/node": "^7.14.2",
-		"isbot": "^5",
+		"@react-router/dev": "^7.17.0",
+		"@react-router/node": "^7.17.0",
 		"lucide-react": "^0.469.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-router": "^7.6.0"
+		"react-router": "^7.17.0",
+		"isbot": "^5"
 	},
 	"devDependencies": {
 		"@types/node": "^20",
 		"@types/react": "^18.3.1",
 		"@types/react-dom": "^18.3.1",
 		"autoprefixer": "^10.4.21",
+		"isbot": "^5.1.41",
 		"postcss": "^8.5.3",
 		"prettier": "^3.8.3",
 		"tailwindcss": "3",

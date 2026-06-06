@@ -18,7 +18,8 @@ export function getImagePath(filename: string): string {
 /**
  * Helper to get WebP version of an image path.
  */
-export function getWebPPath(filename: string): string {
+export function getWebPPath(filename: string): string | null {
+  if (!/\.(jpeg|jpg|png)$/i.test(filename)) return null;
   const webpName = filename.replace(/\.(jpeg|jpg|png)$/i, ".webp");
   return `${config.imageBasePath}/${webpName}`;
 }

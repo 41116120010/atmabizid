@@ -1,0 +1,1235 @@
+================================================================================
+  REVISI-2: LAPORAN ANALISA PROFESIONAL - WEBSITE BRANDING ATMA (atma.biz.id)
+  Oleh: Senior Fullstack Web Developer (10 Tahun Pengalaman)
+  Tanggal: 6 Juni 2026
+  Prinsip Evaluasi: Professional, Lightweight, Scalable, Security, Optimization,
+                    UI/UX Friendly
+  Referensi Sebelumnya: Documentation.txt (Revisi-1, 21 Mei 2026)
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+0. KONTEKS REVISI-2
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Laporan ini merupakan TINDAK LANJUT dari Documentation.txt (Revisi-1) tertanggal
+21 Mei 2026. Setelah menganalisa kondisi codebase terkini (6 Juni 2026), saya
+menemukan bahwa MAYORITAS temuan Revisi-1 telah DIPERBAIKI dengan baik:
+
+  ✅ Security headers sudah ditambahkan di vercel.json (CSP, HSTS, dll.)
+  ✅ URL daffiq.love sudah diganti ke path lokal (/image/...)
+  ✅ Font sudah di-self-host (woff2 di /public/fonts/)
+  ✅ Komponen sudah dimigrasi dari .jsx ke .tsx dengan TypeScript
+  ✅ Data sudah dipisahkan ke folder src/data/
+  ✅ Error Boundary sudah diimplementasikan
+  ✅ Skip navigation link sudah ditambahkan
+  ✅ Gambar sudah memiliki WebP fallback (OptimizedImage component)
+  ✅ Environment variables sudah dikonfigurasi (config.ts + .env.example)
+  ✅ Dependency "sonner" sudah dihapus
+  ✅ tailwind.config.js sudah di-convert ke ESM (export default)
+  ✅ Sitemap.xml sudah dibuat
+  ✅ Alt text sudah lebih deskriptif
+  ✅ OG image sudah mengarah ke domain sendiri
+  ✅ Dev server sudah diubah ke localhost (bukan 0.0.0.0)
+
+Namun, dalam analisa mendalam Revisi-2 ini, saya menemukan TEMUAN BARU dan
+SISA MASALAH yang perlu ditangani. Berikut detailnya:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. TEMUAN KEAMANAN (SECURITY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[HIGH] 1.1 CSP Menggunakan 'unsafe-inline' untuk Script dan Style
+─────────────────────────────────────────────────────────────────────
+File: vercel.json (baris 20)
+Masalah:
+  - script-src mengandung 'unsafe-inline' → membuka celah XSS injection
+  - style-src mengandung 'unsafe-inline' → memungkinkan injeksi CSS berbahaya
+  - Meskipun ini SPA dan Tailwind butuh inline styles, 'unsafe-inline' pada
+    script-src TIDAK DIPERLUKAN dan BERBAHAYA
+
+  CSP saat ini:
+    script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com ...
+    style-src 'self' 'unsafe-inline'
+
+Dampak:
+  - 'unsafe-inline' pada script-src secara efektif MEMBATALKAN proteksi XSS
+    dari CSP. Jika ada celah injection di manapun, attacker bisa inject
+    <script>alert('xss')</script> dan CSP tidak akan membloknya.
+
+Rekomendasi:
+  - HAPUS 'unsafe-inline' dari script-src
+  - Gunakan nonce-based CSP atau hash-based CSP jika ada inline script
+  - Untuk style-src, 'unsafe-inline' masih bisa ditoleransi karena Tailwind
+    dan React membutuhkannya, tapi idealnya gunakan nonce juga
+  - Referensi: https://web.dev/articles/strict-csp
+
+  Contoh perbaikan script-src:
+    script-src 'self' https://va.vercel-scripts.com https://*.vercel-insights.com https://static.cloudflareinsights.com;
+
+  CATATAN: Perlu ditest bahwa semua fitur tetap berfungsi setelah penghapusan
+  'unsafe-inline'. Jika ada inline <script> di root.tsx (JSON-LD), gunakan hash.
+
+──────────────────────────────────────────────────────────────────
+
+[HIGH] 1.2 dangerouslySetInnerHTML pada JSON-LD Tanpa Sanitasi
+──────────────────────────────────────────────────────────────────
+File: src/app/root.tsx (baris 59-77)
+Masalah:
+  - JSON-LD structured data menggunakan dangerouslySetInnerHTML
+  - Meskipun datanya saat ini static/hardcoded, ini membentuk pattern yang
+    BERBAHAYA jika kedepannya data diambil dari API/CMS
+  - JSON.stringify TIDAK melakukan escaping untuk HTML context:
+    Jika value mengandung </script>, browser akan menutup tag script
+
+  Kode:
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({ ... }),
+      }}
+    />
+
+Dampak:
+  - Risiko XSS jika data JSON-LD nantinya bersumber dari input user/API
+  - Pattern ini sering menjadi celah keamanan saat project berkembang
+
+Rekomendasi:
+  - Tetap gunakan JSON.stringify tapi tambahkan escaping untuk karakter
+    berbahaya dalam context HTML:
+    const safeJsonLd = JSON.stringify(data).replace(/</g, '\\u003c');
+  - Atau pindahkan JSON-LD ke file .json terpisah yang di-serve sebagai static
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 1.3 HSTS max-age Bisa Ditingkatkan + Tambahkan preload
+────────────────────────────────────────────────────────────────────
+File: vercel.json (baris 15)
+Masalah:
+  - HSTS saat ini: max-age=63072000 (2 tahun) ✓
+  - includeSubDomains ✓
+  - preload ✓ (sudah ada)
+  - TAPI: Apakah domain sudah didaftarkan ke HSTS Preload List?
+
+Dampak:
+  - Tanpa registrasi di hstspreload.org, directive "preload" tidak efektif
+  - First-visit masih rentan terhadap downgrade attack
+
+Rekomendasi:
+  - Daftarkan domain atma.biz.id ke https://hstspreload.org
+  - Pastikan www.atma.biz.id juga redirect ke HTTPS
+  - Verifikasi semua subdomain juga support HTTPS (karena includeSubDomains)
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 1.4 Email Masih Hardcoded dan Tidak Dilindungi
+─────────────────────────────────────────────────────────
+File: src/data/team.ts, src/components/Footer.tsx, src/app/root.tsx
+Masalah:
+  - Email tim (ihsan@atma.biz.id, apri@atma.biz.id, radit@atma.biz.id,
+    daffiq@atma.biz.id) di-hardcode di data files
+  - help@atma.biz.id di-hardcode di Footer dan ErrorBoundary
+  - Mudah di-harvest oleh spam bot melalui view-source
+
+  Lokasi:
+    - src/data/team.ts: 4 email anggota tim
+    - src/components/Footer.tsx: baris 49 (help@atma.biz.id)
+    - src/components/ErrorBoundary.tsx: baris 105 (help@atma.biz.id)
+    - src/app/root.tsx: baris 205 (help@atma.biz.id)
+
+Dampak:
+  - Spam email ke anggota tim
+  - Email harvesting oleh bot otomatis
+
+Rekomendasi:
+  - Gunakan email obfuscation (encode karakter) minimal untuk mailto: links
+  - Contoh: render email via JavaScript decode saat onclick
+  - Atau gunakan contact form sebagai pengganti direct email links
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 1.5 Folder .vercel Tidak Terlindungi dengan Baik di .gitignore
+──────────────────────────────────────────────────────────────────────
+File: .gitignore (baris 13 dan 20)
+Masalah:
+  - .vercel/ ada di gitignore (baris 13) ✓
+  - TAPI .vercel (tanpa trailing slash) juga ada di baris 20
+  - Duplikasi entry yang menunjukkan kurangnya maintenance
+  - Folder .vercel/ masih ADA di working directory (berisi project.json)
+
+Dampak:
+  - Duplikasi tidak berbahaya, tapi menunjukkan kurangnya kebersihan konfigurasi
+  - .vercel/project.json bisa mengandung project ID Vercel yang sensitif
+
+Rekomendasi:
+  - Hapus entry duplikat ".vercel" di baris 20
+  - Pastikan .vercel/ tidak ter-commit ke repository
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. TEMUAN PERFORMA & OPTIMASI (PERFORMANCE & OPTIMIZATION)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[HIGH] 2.1 Tidak Ada Font Preload untuk Critical Rendering Path
+────────────────────────────────────────────────────────────────
+File: src/app/root.tsx (Layout function)
+Masalah:
+  - Font sudah di-self-host (bagus!) ✓
+  - font-display: swap sudah digunakan (bagus!) ✓
+  - TAPI: Tidak ada <link rel="preload"> untuk font yang digunakan di
+    above-the-fold content (Inter 400, 600, 700 dan Crimson Text 700)
+  - Browser baru men-discover font saat CSS di-parse, menyebabkan delay
+
+  Saat ini di <head> hanya ada:
+    <Meta />
+    <Links />
+    <link rel="canonical" ...>
+    <link rel="icon" ...>
+    <script type="application/ld+json" ...>
+
+  TIDAK ADA font preload hints.
+
+Dampak:
+  - LCP (Largest Contentful Paint) bisa terlambat karena font baru dimuat
+    setelah CSS selesai di-parse
+  - FOUT (Flash of Unstyled Text) lebih lama dari seharusnya
+  - Ini mempengaruhi Core Web Vitals score langsung
+
+Rekomendasi:
+  - Tambahkan preload untuk font kritis (minimal Inter 400 dan Crimson Text 700):
+    <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font"
+          type="font/woff2" crossOrigin="anonymous" />
+    <link rel="preload" href="/fonts/crimson-text-latin-700.woff2" as="font"
+          type="font/woff2" crossOrigin="anonymous" />
+
+  - crossOrigin="anonymous" WAJIB untuk font preload, bahkan untuk same-origin
+
+──────────────────────────────────────────────────────────────────
+
+[HIGH] 2.2 Gambar Profil Tim Terlalu Besar untuk Ukuran Tampilan
+──────────────────────────────────────────────────────────────────
+File: public/image/ (ihsan.jpeg, apri.jpeg, radit.jpeg, 3x4.png)
+Masalah:
+  - Gambar ditampilkan pada ukuran 80x80px (w-20 h-20 di TeamSection)
+  - TAPI ukuran file asli:
+    • ihsan.jpeg  = 161 KB (kemungkinan resolusi jauh di atas 80x80)
+    • apri.jpeg   = 152 KB
+    • radit.jpeg  = 131 KB
+    • 3x4.png     = 68 KB
+  - Total: ~512 KB untuk 4 gambar yang ditampilkan 80x80px
+  - WebP tersedia tapi ukurannya tetap besar:
+    • ihsan.webp  = 18 KB (improvement bagus)
+    • apri.webp   = 117 KB (hampir sama dengan JPEG! Tidak efektif)
+    • radit.webp  = 22 KB
+    • 3x4.webp    = 4 KB
+
+Dampak:
+  - Bandwidth terbuang, terutama di mobile
+  - apri.webp (117 KB) hampir sama besarnya dengan apri.jpeg (152 KB) →
+    konversi WebP yang TIDAK efektif, kemungkinan quality terlalu tinggi
+  - LCP dan page load terdampak negatif
+
+Rekomendasi:
+  - Resize semua gambar profil ke ukuran maksimal yang dibutuhkan:
+    160x160px (2x untuk retina display dari tampilan 80x80px)
+  - Re-generate WebP dengan quality 75-80 (bukan default yang terlalu tinggi)
+  - Khusus apri.webp: investigasi kenapa 117 KB — kemungkinan lossless mode
+    atau quality terlalu tinggi
+  - Target: setiap gambar profil < 10 KB setelah resize + WebP compression
+  - Tambahkan srcset untuk 1x dan 2x resolution jika ingin optimal
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 2.3 Dependency @react-router/node dan isbot Tidak Diperlukan
+──────────────────────────────────────────────────────────────────────
+File: package.json (baris 25-26)
+Masalah:
+  - "@react-router/node": "^7.14.2" ada di dependencies
+  - "isbot": "^5" ada di dependencies
+  - Project dikonfigurasi sebagai SPA (ssr: false di react-router.config.ts)
+  - KEDUA package ini HANYA berguna untuk SSR mode
+  - @react-router/node menyediakan handler untuk Node.js SSR
+  - isbot digunakan untuk mendeteksi bot di server-side rendering
+
+Dampak:
+  - Menambah ukuran node_modules dan install time tanpa manfaat
+  - Dependency yang tidak digunakan = attack surface yang tidak perlu
+  - Membingungkan developer lain yang membaca package.json
+
+Rekomendasi:
+  - Hapus kedua dependency:
+    npm uninstall @react-router/node isbot
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 2.4 IntersectionObserver Berulang di Setiap Section (DRY Violation)
+──────────────────────────────────────────────────────────────────────────────
+File: ProductSection.tsx, TechSection.tsx, RoadmapSection.tsx,
+      TeamSection.tsx, DashboardSection.tsx
+Masalah:
+  - SEMUA 5 komponen section memiliki kode IntersectionObserver yang
+    IDENTIK (copy-paste pattern):
+
+    const [visible, setVisible] = useState(false);
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setVisible(true);
+        },
+        { threshold: 0.1 }, // atau 0.15
+      );
+      const current = sectionRef.current;
+      if (current) observer.observe(current);
+      return () => {
+        if (current) observer.unobserve(current);
+      };
+    }, []);
+
+  - Kode yang sama di-copy-paste 5 kali
+
+Dampak:
+  - Melanggar prinsip DRY (Don't Repeat Yourself)
+  - Jika ada bug di IntersectionObserver logic, harus diperbaiki di 5 tempat
+  - Menambah boilerplate yang tidak perlu di setiap komponen
+
+Rekomendasi:
+  - Buat custom hook useInView:
+
+    // src/hooks/useInView.ts
+    import { useEffect, useRef, useState } from "react";
+
+    export function useInView(threshold = 0.1) {
+      const [visible, setVisible] = useState(false);
+      const ref = useRef<HTMLElement>(null);
+
+      useEffect(() => {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) setVisible(true);
+          },
+          { threshold },
+        );
+        const current = ref.current;
+        if (current) observer.observe(current);
+        return () => {
+          if (current) observer.unobserve(current);
+        };
+      }, [threshold]);
+
+      return { ref, visible };
+    }
+
+  - Penggunaan di komponen:
+    const { ref, visible } = useInView(0.1);
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 2.5 Tidak Ada React.memo / useMemo / useCallback di Manapun
+───────────────────────────────────────────────────────────────────────
+File: Seluruh komponen di src/components/
+Masalah:
+  - TIDAK ADA satupun penggunaan React.memo, useMemo, atau useCallback
+    di seluruh project
+  - generateMockData() di DashboardSection dipanggil ulang setiap re-render
+    tanpa memoization
+
+  Contoh spesifik:
+  - DashboardSection.tsx: gaugeCards array (baris 113-137) dibuat ulang
+    setiap render
+  - Navbar.tsx: scrollTo function (baris 34-39) dibuat ulang setiap render
+  - Footer.tsx: scrollTo function (baris 9-12) dibuat ulang setiap render
+
+Dampak:
+  - Untuk project kecil ini, dampaknya minimal
+  - TAPI dari segi profesionalisme dan scalability, ini pattern yang buruk
+  - Jika dashboard nantinya terhubung ke real-time data, re-render yang
+    tidak perlu akan terasa
+
+Rekomendasi:
+  - Minimal: memoize MiniChart component dengan React.memo (menerima props)
+  - Wrap scrollTo functions dengan useCallback
+  - Gunakan useMemo untuk gaugeCards array di DashboardSection
+  - Ini bukan prioritas tinggi untuk SPA statis, tapi penting jika project
+    berkembang ke real-time dashboard
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 2.6 Duplikasi Keyframe Animation di global.css
+────────────────────────────────────────────────────────────
+File: src/app/global.css (baris 113-129)
+Masalah:
+  - animate-pulse dan animate-bounce didefinisikan manual di global.css
+  - Padahal Tailwind CSS v3 SUDAH menyediakan utility class:
+    • animate-pulse (bawaan Tailwind)
+    • animate-bounce (bawaan Tailwind)
+  - Definisi manual MENIMPA versi Tailwind tanpa alasan yang jelas
+
+  Kode saat ini:
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .animate-pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+Dampak:
+  - CSS yang tidak perlu (duplikasi utilitas yang sudah ada)
+  - Behavior bisa berbeda dari standar Tailwind (Tailwind pulse: opacity 0→1,
+    custom ini: opacity 1→0.4)
+  - Membingungkan developer yang expect perilaku standar Tailwind
+
+Rekomendasi:
+  - HAPUS definisi @keyframes pulse, bounce, .animate-pulse, .animate-bounce
+    dari global.css
+  - Gunakan built-in Tailwind animate-pulse dan animate-bounce
+  - Jika membutuhkan timing yang berbeda, extend di tailwind.config.js:
+    theme: { extend: { animation: { pulse: 'pulse 2s ease-in-out infinite' }}}
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 2.7 Console.error di Production (ErrorBoundary)
+───────────────────────────────────────────────────────
+File: src/components/ErrorBoundary.tsx (baris 23)
+Masalah:
+  - console.error("[ErrorBoundary]", error, errorInfo) akan muncul di
+    production browser console
+  - Meskipun ini error handler yang legitimate, di production sebaiknya
+    error dikirim ke error tracking service (Sentry, etc.)
+
+  Kode:
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+      console.error("[ErrorBoundary]", error, errorInfo);
+    }
+
+Dampak:
+  - Informasi error terekspos di client console (minor security concern)
+  - Tidak ada error tracking/monitoring di production
+
+Rekomendasi:
+  - Untuk saat ini (project akademik), ini ACCEPTABLE
+  - Untuk production-grade: integrasikan dengan error tracking (Sentry, etc.)
+  - Atau minimal: guard dengan environment check:
+    if (import.meta.env.DEV) console.error("[ErrorBoundary]", error, errorInfo);
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 2.8 Lucide-react Pinned ke Versi Lama
+──────────────────────────────────────────────
+File: package.json (baris 27)
+Masalah:
+  - "lucide-react": "^0.469.0" — versi ini sudah cukup lama
+  - Lucide aktif merilis update (bug fix, icon baru, optimasi)
+  - ^0.469.0 menggunakan caret (✓ sudah baik), tapi base version lama
+
+Dampak:
+  - Minor — tidak ada security risk langsung
+  - Bisa miss icon baru atau bug fix
+
+Rekomendasi:
+  - Update ke versi terbaru: npm update lucide-react
+  - Ini LOW priority, lakukan saat ada waktu
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. TEMUAN KUALITAS KODE (CODE QUALITY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[HIGH] 3.1 Duplikasi Besar: ErrorBoundary Komponen vs root.tsx ErrorBoundary
+──────────────────────────────────────────────────────────────────────────────
+File: src/components/ErrorBoundary.tsx vs src/app/root.tsx (baris 92-213)
+Masalah:
+  - ADA DUA Error Boundary yang berbeda:
+
+    1. src/components/ErrorBoundary.tsx (Class Component)
+       → React Error Boundary (catch runtime errors)
+       → Digunakan di page.tsx sebagai wrapper
+
+    2. src/app/root.tsx: export function ErrorBoundary() (baris 92-213)
+       → React Router Error Boundary (catch routing errors, 404, dll.)
+       → Otomatis digunakan oleh React Router
+
+  - KEDUA komponen memiliki UI yang HAMPIR IDENTIK:
+    • Background effects (grid + gradient orbs) — SAMA
+    • Logo section — SAMA
+    • Icon (warning triangle) — SAMA
+    • Status badge — SAMA
+    • Title/description — MIRIP
+    • Action buttons — MIRIP
+    • Footer note — SAMA
+
+  - Ini adalah ~120 baris kode yang di-COPY-PASTE antara 2 file
+
+Dampak:
+  - Melanggar prinsip DRY secara signifikan
+  - Jika design berubah, harus update di 2 tempat
+  - Inkonsistensi bisa muncul jika salah satu di-update tapi yang lain tidak
+  - Menambah bundle size tanpa alasan
+
+Rekomendasi:
+  - Buat komponen ErrorLayout yang shared:
+
+    // src/components/ErrorLayout.tsx
+    interface ErrorLayoutProps {
+      statusCode?: number;
+      title: string;
+      description: string;
+      icon: 'search' | 'warning';
+      badge: string;
+      primaryAction: { label: string; onClick: () => void };
+      secondaryAction?: { label: string; href?: string; onClick?: () => void };
+    }
+
+  - Gunakan ErrorLayout di KEDUA ErrorBoundary
+  - Ini akan menghilangkan ~100+ baris duplikasi
+
+──────────────────────────────────────────────────────────────────
+
+[HIGH] 3.2 Inline Style Berlebihan untuk Animasi (Pattern Anti-Scalable)
+──────────────────────────────────────────────────────────────────────────
+File: Semua section components
+Masalah:
+  - SETIAP elemen animasi menggunakan inline style object:
+    style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(30px)",
+      transitionDelay: `${150 + i * 100}ms`,
+      transitionDuration: "700ms",
+    }}
+
+  - Pattern ini diulang PULUHAN KALI di seluruh codebase
+  - Contoh file dan jumlah penggunaan:
+    • HeroSection.tsx: 5 instances
+    • ProductSection.tsx: 3 instances
+    • TechSection.tsx: 3 instances
+    • RoadmapSection.tsx: 4 instances
+    • TeamSection.tsx: 2 instances
+    • DashboardSection.tsx: 5 instances
+
+  Total: ~22 inline style blocks untuk animasi yang pattern-nya SAMA
+
+Dampak:
+  - Code bloat yang signifikan
+  - Sulit di-maintain (jika ingin ganti durasi animasi, edit 22+ tempat)
+  - React membuat style object baru setiap render (walaupun dampaknya kecil)
+  - Melanggar prinsip DRY dan separation of concerns
+
+Rekomendasi:
+  - Sudah ada CSS utility .fade-in-up di global.css (baris 90-110)
+  - TAPI utility ini TIDAK DIGUNAKAN oleh satupun komponen!
+  - Ada 2 opsi:
+
+  Opsi A (Preferred — CSS-based):
+    - Gunakan class .fade-in-up yang sudah ada
+    - Toggle class "visible" via JavaScript (bukan inline style)
+    - Untuk staggered delay, gunakan CSS custom property:
+      <div className={`fade-in-up ${visible ? 'visible' : ''}`}
+           style={{ transitionDelay: `${i * 100}ms` }}>
+    - Ini mengurangi inline style dari ~5 properti menjadi 1 (delay saja)
+
+  Opsi B (Custom hook):
+    - Buat helper function yang return style object:
+      function getFadeStyle(visible: boolean, delay: number) { ... }
+    - Kurangi duplikasi, tapi tetap inline styles
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 3.3 DashboardSection: isOnline Hardcoded ke false (Dead Code Path)
+──────────────────────────────────────────────────────────────────────────────
+File: src/components/DashboardSection.tsx (baris 87)
+Masalah:
+  - const isOnline = false; // Will be dynamic when real sensor is connected
+  - Ini BUKAN state, hanya constant → path "Sensor Online" TIDAK PERNAH tercapai
+  - Kode isOnline masih ada dari Revisi-1, tapi sekarang bukan useState lagi
+    (improvement dari Revisi-1), namun tetap dead code
+
+  Kode yang tidak pernah tercapai (baris 178-184):
+    isOnline ? (
+      <Wifi size={14} className="text-[#8BC49E]" />  // DEAD CODE
+    ) : (
+      <WifiOff size={14} className="text-[#E8734A]" />
+    )
+
+Dampak:
+  - Dead code yang membingungkan
+  - Menambah cognitive load saat membaca kode
+
+Rekomendasi:
+  - Jika memang belum ada rencana koneksi sensor dalam waktu dekat:
+    HAPUS semua conditional isOnline dan biarkan hanya "Demo Mode"
+  - Jika sudah ada rencana, buat TODO comment yang lebih deskriptif:
+    // TODO(Phase-3): Replace with real sensor WebSocket connection
+    // See: https://github.com/.../issues/XX
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 3.4 Tidak Ada Folder hooks/ untuk Custom Hooks
+──────────────────────────────────────────────────────────
+File: src/ (structure)
+Masalah:
+  - Struktur src/ saat ini:
+    src/
+    ├── app/
+    ├── components/
+    ├── config.ts
+    ├── data/
+    └── types/
+
+  - Tidak ada folder hooks/ padahal ada kebutuhan jelas untuk:
+    • useInView (IntersectionObserver yang diulang 5x)
+    • useScrollTo (scroll-to-section logic yang diulang di Navbar dan Footer)
+    • useMediaQuery (jika perlu responsive logic di JS)
+
+Dampak:
+  - Kebiasaan code organization yang kurang profesional
+  - Logic yang seharusnya reusable terjebak di dalam komponen
+
+Rekomendasi:
+  - Buat folder src/hooks/
+  - Mulai dengan useInView.ts dan useScrollTo.ts
+  - Ini akan mengurangi boilerplate signifikan di semua section components
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 3.5 scrollTo Logic Duplikat di Navbar dan Footer
+──────────────────────────────────────────────────────────
+File: src/components/Navbar.tsx (baris 34-39), src/components/Footer.tsx (baris 9-12)
+Masalah:
+  - Navbar:
+    const scrollTo = (href: string) => {
+      const el = document.querySelector(href);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setMobileOpen(false);
+    };
+
+  - Footer:
+    const scrollTo = (href: string) => {
+      const el = document.querySelector(href);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    };
+
+  - HeroSection (baris 24-27):
+    const scrollToProduct = () => {
+      const el = document.getElementById("product");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    };
+
+  - 3 implementasi berbeda untuk fungsi yang SAMA
+
+Dampak:
+  - Inkonsistensi (Navbar: block: "start", Footer: tanpa block)
+  - Jika butuh offset untuk fixed navbar, harus ubah di 3+ tempat
+
+Rekomendasi:
+  - Buat utility function atau custom hook:
+    // src/hooks/useScrollTo.ts
+    export function scrollToSection(href: string) {
+      const el = document.querySelector(href);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 3.6 Inkonsistensi Penamaan File Gambar
+──────────────────────────────────────────────
+File: public/image/, src/data/team.ts
+Masalah:
+  - Nama file gambar tidak konsisten:
+    • ihsan.jpeg (nama depan)
+    • apri.jpeg (nama panggilan)
+    • radit.jpeg (nama panggilan)
+    • 3x4.png (ukuran foto?! bukan nama orang)
+
+  - "3x4.png" untuk Daffiq Trie Octorino sangat tidak deskriptif
+  - Format campuran: .jpeg dan .png
+
+Dampak:
+  - Sulit mengidentifikasi siapa pemilik foto tanpa melihat kode
+  - "3x4" bisa berarti apa saja (ukuran foto formal, aspect ratio, dll.)
+  - Kurang profesional dalam asset management
+
+Rekomendasi:
+  - Rename semua ke format yang konsisten:
+    • daffiq.jpeg (atau daffiq.webp)
+    • ihsan.jpeg
+    • apri.jpeg
+    • radit.jpeg
+  - Update referensi di src/data/team.ts
+  - Convert 3x4.png ke JPEG agar format konsisten
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 3.7 Tidak Ada Linting dan Pre-commit Hooks
+──────────────────────────────────────────────────
+File: package.json
+Masalah:
+  - Tidak ada ESLint/Biome konfigurasi di project
+  - Tidak ada husky/lint-staged untuk pre-commit hooks
+  - Hanya ada Prettier untuk formatting
+  - Tidak ada script "lint" di package.json
+
+Dampak:
+  - Code quality hanya bergantung pada review manual
+  - Bug potensial (unused vars, missing deps di useEffect) tidak terdeteksi
+  - Konsistensi kode sulit dijaga dalam tim
+
+Rekomendasi:
+  - Tambahkan ESLint atau Biome:
+    npm install -D @biomejs/biome
+    atau
+    npm install -D eslint @typescript-eslint/eslint-plugin
+  - Setup basic rules untuk React/TypeScript
+  - Tambahkan script: "lint": "biome check ."
+  - Opsional: tambahkan husky + lint-staged untuk pre-commit
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. TEMUAN SEO & AKSESIBILITAS (SEO & ACCESSIBILITY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[HIGH] 4.1 SPA tanpa Prerender = Konten Tidak Terindex Optimal
+──────────────────────────────────────────────────────────────
+File: react-router.config.ts (baris 6)
+Masalah:
+  - prerender: ['/'] sudah dikonfigurasi ✓
+  - TAPI ssr: false berarti aplikasi berjalan sepenuhnya di client
+  - Halaman error (404, dll.) TIDAK di-prerender
+  - Google crawler BISA merender JavaScript, tapi:
+    • Membutuhkan 2nd wave indexing (delay)
+    • Konten dinamis (roadmap progress, dll.) mungkin tidak terindex
+    • Social media crawlers (Facebook, Twitter) TIDAK menjalankan JavaScript
+
+Dampak:
+  - Social media previews mungkin tidak menampilkan konten dengan benar
+    meskipun OG tags ada (karena crawlers tidak menjalankan JS)
+  - SEO ranking terdampak karena 2nd wave indexing delay
+
+Rekomendasi:
+  - Pastikan prerender menghasilkan HTML statis yang lengkap untuk '/'
+  - Verifikasi hasil build: periksa build/client/__spa-fallback.html
+    apakah mengandung konten statis atau hanya shell kosong
+  - Jika shell kosong: pertimbangkan mengaktifkan SSR atau menggunakan
+    static site generation (SSG) untuk halaman utama
+  - Gunakan Google Search Console untuk verifikasi rendering
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 4.2 Kontras Warna Masih Bermasalah di Beberapa Tempat
+──────────────────────────────────────────────────────────────
+File: Beberapa komponen
+Masalah:
+  - Perbaikan dari Revisi-1 sudah dilakukan (teks #999 ke atas) ✓
+  - NAMUN masih ada beberapa elemen dengan kontras rendah:
+
+    • text-[#333] pada bg-[#0A0A0A]:
+      → DashboardSection.tsx baris 251, 254 ("24h ago", "Now" labels)
+      → Rasio kontras: ~1.57:1 (GAGAL, minimum 4.5:1 untuk teks kecil)
+
+    • text-[#333] pada background #0A0A0A:
+      → RoadmapSection.tsx baris 161 (separator "·")
+      → Rasio kontras: ~1.57:1 (GAGAL)
+
+    • text-[#444] pada background #060606:
+      → TeamSection.tsx baris 105, 112 (Github/Mail icons default state)
+      → Rasio kontras: ~1.99:1 (GAGAL)
+
+Dampak:
+  - Pengguna dengan gangguan penglihatan TIDAK BISA membaca label ini
+  - Melanggar WCAG 2.1 Level AA requirements
+
+Rekomendasi:
+  - Ganti text-[#333] minimal ke text-[#777] (rasio ~3.24:1, borderline)
+    atau idealnya text-[#999] (rasio ~4.58:1, PASS AA)
+  - Ganti text-[#444] minimal ke text-[#777] atau text-[#888]
+  - Untuk elemen dekoratif (separator "·"), kontras lebih rendah bisa
+    diterima, tapi untuk label fungsional (waktu, icon interaktif)
+    harus memenuhi WCAG AA
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 4.3 Tidak Ada ARIA Role/Label pada Section dan Interactive Elements
+──────────────────────────────────────────────────────────────────────────────
+File: Semua section components
+Masalah:
+  - Section elements hanya menggunakan id, tanpa aria-label/labelledby:
+    <section id="product"> — screen reader hanya membaca "region"
+    <section id="tech"> — tanpa konteks
+    <section id="roadmap"> — tanpa konteks
+
+  - RoadmapSection.tsx: Accordion-style expand/collapse tanpa ARIA:
+    • <button onClick={() => setExpandedPhase(...)}> — baris 109
+    • Tidak ada aria-expanded
+    • Tidak ada aria-controls
+    • Expanded content tidak memiliki id yang direferensikan
+
+  - DashboardSection.tsx: Refresh button (baris 196-202)
+    • aria-label="Refresh Data" ✓ (sudah baik)
+    • TAPI tidak ada aria-live region untuk mengumumkan data yang berubah
+
+Dampak:
+  - Pengguna screen reader tidak mendapat konteks section
+  - Accordion di roadmap tidak accessible (tidak tahu apakah expanded/collapsed)
+
+Rekomendasi:
+  - Tambahkan aria-labelledby pada setiap section yang mereferensikan h2:
+    <section id="product" aria-labelledby="product-heading">
+    <h2 id="product-heading">...</h2>
+
+  - Tambahkan ARIA attributes pada roadmap accordion:
+    <button
+      aria-expanded={isExpanded}
+      aria-controls={`phase-content-${i}`}
+    >
+    <div id={`phase-content-${i}`} role="region">
+
+  - Tambahkan aria-live="polite" pada dashboard data yang bisa berubah
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 4.4 Sitemap.xml Tidak Auto-Generated dan Stale
+─────────────────────────────────────────────────────────
+File: public/sitemap.xml
+Masalah:
+  - <lastmod>2026-05-21</lastmod> — tanggal sudah stale (16 hari lalu)
+  - Sitemap di-hardcode sebagai file statis
+  - Jika website berkembang (halaman baru), sitemap harus di-update manual
+
+Dampak:
+  - Search engine mungkin menganggap konten sudah tidak berubah
+  - Manual maintenance sitemap rawan terlupa
+
+Rekomendasi:
+  - Untuk saat ini (single page), ini ACCEPTABLE
+  - Update <lastmod> setiap kali ada deployment (bisa via build script)
+  - Tambahkan script di package.json:
+    "prebuild": "node -e \"...\" " untuk auto-update lastmod
+  - Atau integrasikan dengan CI/CD pipeline
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 4.5 Footer: Copyright Year Menggunakan Dynamic Date
+──────────────────────────────────────────────────────────
+File: src/components/Footer.tsx (baris 111)
+Masalah:
+  - © {new Date().getFullYear()} ATMA. All Rights Reserved.
+  - Ini BAIK untuk menampilkan tahun saat ini
+  - TAPI: Di SPA yang di-prerender, getFullYear() dipanggil saat BUILD
+    bukan saat runtime → tahun bisa stale jika build dilakukan tahun lalu
+
+Dampak:
+  - Minimal — project ini di-deploy secara regular
+
+Rekomendasi:
+  - Untuk saat ini ACCEPTABLE
+  - Jika ingin robust: pastikan CI/CD melakukan rebuild secara periodik
+  - Atau hardcode: © 2026 ATMA (update manual tiap tahun)
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 4.6 Heading Hierarchy Bisa Diperbaiki
+─────────────────────────────────────────────
+File: src/app/root.tsx, error boundaries
+Masalah:
+  - Halaman utama: h1 di HeroSection, h2 di setiap section — BENAR ✓
+  - Error page (root.tsx ErrorBoundary): h1 di error page — BENAR ✓
+  - TAPI: tidak ada <main> element yang wrapping konten utama
+  - Semua section langsung di dalam <div className="bg-[#0A0A0A]">
+
+Dampak:
+  - Screen reader tidak bisa langsung navigasi ke "main content"
+  - Skip navigation link mengarah ke #product, bukan <main>
+
+Rekomendasi:
+  - Wrap konten utama di page.tsx dengan <main>:
+    <main>
+      <HeroSection />
+      <ProductSection />
+      ...
+    </main>
+  - Ubah skip link target ke #main-content:
+    <a href="#main-content">Langsung ke konten utama</a>
+    <main id="main-content">...</main>
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. TEMUAN SCALABILITY & ARCHITECTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[MEDIUM] 5.1 Config.ts: getWebPPath Tidak Handle Edge Cases
+──────────────────────────────────────────────────────────────
+File: src/config.ts (baris 21-24)
+Masalah:
+  - getWebPPath menggunakan regex replace: /\.(jpeg|jpg|png)$/i
+  - Jika filename TIDAK memiliki ekstensi yang cocok (misal: "logo.svg"),
+    fungsi mengembalikan path TANPA perubahan
+  - TAPI path yang dikembalikan digunakan di <source srcSet={webpSrc} type="image/webp">
+    yang mengharapkan file .webp
+
+  Kode:
+    export function getWebPPath(filename: string): string {
+      const webpName = filename.replace(/\.(jpeg|jpg|png)$/i, ".webp");
+      return `${config.imageBasePath}/${webpName}`;
+    }
+
+  Jika dipanggil: getWebPPath("icon.svg")
+  Return: "/image/icon.svg" (bukan WebP, tapi di-serve sebagai WebP source)
+
+Dampak:
+  - Browser akan gagal load WebP source dan fallback ke img src
+  - Tidak crash, tapi menyebabkan unnecessary 404 request jika WebP tidak ada
+
+Rekomendasi:
+  - Tambahkan type guard atau validation:
+    export function getWebPPath(filename: string): string | null {
+      if (!/\.(jpeg|jpg|png)$/i.test(filename)) return null;
+      const webpName = filename.replace(/\.(jpeg|jpg|png)$/i, ".webp");
+      return `${config.imageBasePath}/${webpName}`;
+    }
+  - Update OptimizedImage untuk handle null webpSrc (skip <source> tag)
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 5.2 Tidak Ada Testing Infrastructure
+──────────────────────────────────────────────
+File: package.json, project root
+Masalah:
+  - TIDAK ADA test framework terinstall (Vitest, Jest, dll.)
+  - TIDAK ADA test files di seluruh project
+  - TIDAK ADA script "test" di package.json
+
+Dampak:
+  - Tidak ada jaminan komponen berfungsi setelah perubahan
+  - Refactoring berisiko tinggi tanpa test coverage
+  - Untuk project akademik ini bisa ditoleransi, tapi dari perspektif
+    profesional ini adalah GAP signifikan
+
+Rekomendasi:
+  - Install Vitest (natural fit untuk Vite project):
+    npm install -D vitest @testing-library/react @testing-library/jest-dom
+  - Buat minimal test untuk:
+    • config.ts (unit test path helpers)
+    • OptimizedImage component (render test)
+    • ErrorBoundary (error catching test)
+  - Tambahkan script: "test": "vitest run"
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 5.3 Build Output Termasuk di Repository
+──────────────────────────────────────────────
+File: .gitignore (baris 6)
+Masalah:
+  - /build/ ada di .gitignore ✓ (sudah benar)
+  - TAPI folder build/ masih ada di working directory
+  - Perlu dipastikan build/ tidak ter-commit
+
+Dampak:
+  - Minimal jika .gitignore benar
+
+Rekomendasi:
+  - Verifikasi dengan: git status
+  - Jika build/ sudah ter-track: git rm -r --cached build/
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 5.4 Vercel.json: Framework Set ke null
+──────────────────────────────────────────────
+File: vercel.json (baris 4)
+Masalah:
+  - "framework": null — ini menginstruksikan Vercel untuk TIDAK auto-detect
+    framework
+  - Ini INTENTIONAL karena project menggunakan custom build command
+
+Dampak:
+  - Tidak ada masalah langsung
+  - TAPI jika Vercel update auto-detection yang lebih baik, project ini
+    tidak akan mendapat benefit otomatis
+
+Rekomendasi:
+  - Ini ACCEPTABLE untuk saat ini
+  - Jika Vercel sudah support React Router v7 SPA detection, bisa diubah
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. TEMUAN UI/UX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[MEDIUM] 6.1 Mobile Menu Tidak Menutup Body Scroll
+──────────────────────────────────────────────────
+File: src/components/Navbar.tsx
+Masalah:
+  - Saat mobile menu terbuka (mobileOpen = true), body tetap bisa di-scroll
+  - Menu menggunakan max-height transition, tapi TIDAK mengunci body scroll
+  - User bisa scroll page di belakang menu yang terbuka
+
+Dampak:
+  - UX yang kurang polish di mobile
+  - Menu bisa "hilang" jika user scroll ke bawah saat menu terbuka
+
+Rekomendasi:
+  - Tambahkan body scroll lock saat menu terbuka:
+    useEffect(() => {
+      document.body.style.overflow = mobileOpen ? 'hidden' : '';
+      return () => { document.body.style.overflow = ''; };
+    }, [mobileOpen]);
+
+──────────────────────────────────────────────────────────────────
+
+[MEDIUM] 6.2 Navbar CTA "Live Monitor" Bisa Misleading
+────────────────────────────────────────────────────────
+File: src/components/Navbar.tsx (baris 107-110)
+Masalah:
+  - CTA button bertuliskan "Live Monitor" → mengklaim LIVE
+  - Dashboard section menampilkan data MOCK/simulasi
+  - Badge di dashboard: "Demo Mode" ✓ (sudah jelas)
+  - TAPI CTA di navbar berkesan ada live monitoring yang aktif
+
+Dampak:
+  - Misleading bagi pengunjung pertama kali
+  - Ekspektasi tidak sesuai kenyataan
+
+Rekomendasi:
+  - Ganti teks CTA ke: "Preview Dashboard" atau "Demo Monitor"
+  - Atau tambahkan subtitle kecil: "Live Monitor (Preview)"
+  - Konsistenkan messaging: jika demo mode, jangan klaim "live"
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 6.3 ProductSection: ArrowRight Hover Indicator Tidak Semantik
+────────────────────────────────────────────────────────────────────
+File: src/components/ProductSection.tsx (baris 80-82)
+Masalah:
+  - Setiap feature card menampilkan ArrowRight icon saat hover
+  - Ini mengimplikan bahwa card bisa di-klik untuk navigasi
+  - TAPI card TIDAK memiliki onClick handler atau <a> tag
+  - Feature cards hanya menampilkan informasi statis
+
+  Kode:
+    <div className="absolute bottom-7 right-7 opacity-0
+                    group-hover:opacity-100 transition-opacity">
+      <ArrowRight size={16} className="text-[#C8956C]" />
+    </div>
+
+Dampak:
+  - UX confusion — user mengklik card tapi tidak terjadi apa-apa
+  - Melanggar prinsip affordance dalam UX design
+
+Rekomendasi:
+  - Opsi A: HAPUS ArrowRight icon hover effect
+  - Opsi B: Tambahkan navigasi ke detail page/modal jika ada konten lanjutan
+  - Opsi C: Ganti ArrowRight dengan icon non-navigational (misal: info icon)
+
+──────────────────────────────────────────────────────────────────
+
+[LOW] 6.4 DashboardSection: Label Bahasa Campur (Indonesia-Inggris)
+────────────────────────────────────────────────────────────────────
+File: src/components/DashboardSection.tsx
+Masalah:
+  - Label campuran bahasa:
+    • "Suhu" (Indonesia) tapi "24h ago" dan "Now" (Inggris) — baris 251-255
+    • "System Status" (Inggris) — baris 273
+    • "Planned" (Inggris) — baris 278-281
+    • "Kelembaban" (Indonesia) — baris 130
+    • "40 – 60°C optimal" (Inggris) — baris 127
+  - Secara keseluruhan website menggunakan Bahasa Indonesia, tapi dashboard
+    section menggunakan banyak istilah teknis Inggris
+
+Dampak:
+  - Inkonsistensi bahasa (minor)
+  - Target audience (akademik Indonesia) mungkin kurang familiar dengan
+    beberapa istilah
+
+Rekomendasi:
+  - Konsistenkan bahasa:
+    • "24h ago" → "24 jam lalu"
+    • "Now" → "Sekarang"
+    • "System Status" → "Status Sistem"
+    • "Planned" → "Direncanakan"
+    • "40 – 60°C optimal" → "40 – 60°C (optimal)"
+  - ATAU biarkan istilah teknis dalam Bahasa Inggris tapi pastikan
+    label user-facing menggunakan Bahasa Indonesia
+  - Untuk istilah seperti "Sensor DHT", "WiFi Module", "API Gateway",
+    "Database" — biarkan dalam Bahasa Inggris (istilah teknis universal)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. HAL YANG SUDAH BAIK (APRESIASI IMPROVEMENT DARI REVISI-1)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ 7.1 Security Headers Komprehensif
+  - CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy,
+    Permissions-Policy, Cross-Origin-Opener-Policy — semua sudah ada
+  - HSTS dengan includeSubDomains dan preload ✓
+
+✓ 7.2 Self-Hosted Fonts (Eliminasi External Dependency)
+  - 7 file woff2 di-host lokal (Inter 4 weights + Crimson Text 3 weights)
+  - font-display: swap pada semua @font-face ✓
+  - unicode-range untuk subset optimization ✓
+
+✓ 7.3 Migrasi TypeScript Lengkap
+  - Semua komponen sudah .tsx (bukan .jsx)
+  - Interface/type definitions di src/types/index.ts ✓
+  - tsconfig strict: true berfungsi dengan baik ✓
+
+✓ 7.4 Arsitektur Data Terpisah
+  - Data dipindahkan ke src/data/ (navigation, product, roadmap, team, tech)
+  - Separation of concerns antara data dan presentasi ✓
+  - Type-safe data dengan TypeScript interfaces ✓
+
+✓ 7.5 Environment Configuration
+  - config.ts dengan Vite env vars ✓
+  - .env.example sebagai template ✓
+  - Helper functions (getImagePath, getWebPPath, getImageUrl) ✓
+
+✓ 7.6 WebP Image Optimization
+  - OptimizedImage component dengan <picture> element ✓
+  - WebP source dengan JPEG/PNG fallback ✓
+  - loading="lazy" pada gambar di bawah fold ✓
+  - width/height attribute untuk CLS prevention ✓
+
+✓ 7.7 Error Handling
+  - React Error Boundary (class component) ✓
+  - React Router Error Boundary (function export) ✓
+  - Graceful error UI dengan action buttons ✓
+
+✓ 7.8 Accessibility Improvements
+  - Skip navigation link ✓
+  - aria-label pada interactive elements ✓
+  - aria-hidden pada decorative SVGs ✓
+  - focus-visible outline styles ✓
+  - Deskriptif alt text pada gambar profil ✓
+
+✓ 7.9 Asset Caching Strategy
+  - vercel.json: immutable cache (1 year) untuk /assets/, /image/, /fonts/ ✓
+  - Strategi cache yang tepat untuk static assets ✓
+
+✓ 7.10 Clean Code Practices
+  - Passive event listener pada scroll ✓
+  - Proper useEffect cleanup (unobserve, removeEventListener) ✓
+  - rel="noopener noreferrer" pada external links ✓
+  - Consistent code formatting (Prettier + EditorConfig) ✓
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. RINGKASAN TEMUAN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Level     | Jumlah | ID Temuan
+  ─────────────────────────────────────────────────────────
+  HIGH      |   5    | 1.1, 1.2, 2.1, 2.2, 3.1, 3.2, 4.1
+  MEDIUM    |  14    | 1.3, 1.4, 2.3, 2.4, 2.5, 2.6, 3.3,
+            |        | 3.4, 3.5, 4.2, 4.3, 4.4, 5.1, 5.2,
+            |        | 6.1, 6.2
+  LOW       |   9    | 1.5, 2.7, 2.8, 3.6, 3.7, 4.5, 4.6,
+            |        | 5.3, 5.4, 6.3, 6.4
+  ─────────────────────────────────────────────────────────
+  TOTAL     |  28    |
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+9. PRIORITAS PERBAIKAN (REKOMENDASI URUTAN)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BATCH 1 — SECURITY HARDENING (Kritis):
+  1. [ ] [1.1] Hapus 'unsafe-inline' dari script-src di CSP
+  2. [ ] [1.2] Sanitasi JSON-LD dangerouslySetInnerHTML
+
+BATCH 2 — PERFORMANCE CRITICAL:
+  3. [ ] [2.1] Tambahkan font preload di <head>
+  4. [ ] [2.2] Resize & re-compress gambar profil tim
+  5. [ ] [2.3] Hapus dependency @react-router/node dan isbot
+
+BATCH 3 — CODE QUALITY (DRY & Clean Code):
+  6. [ ] [3.1] Buat shared ErrorLayout component (eliminasi duplikasi)
+  7. [ ] [2.4] Buat custom hook useInView (eliminasi duplikasi observer)
+  8. [ ] [3.5] Buat utility scrollToSection (eliminasi duplikasi)
+  9. [ ] [3.2] Gunakan CSS class .fade-in-up yang sudah ada (kurangi inline styles)
+
+BATCH 4 — ACCESSIBILITY:
+  10. [ ] [4.2] Perbaiki kontras warna (#333 dan #444)
+  11. [ ] [4.3] Tambahkan ARIA attributes pada sections dan roadmap accordion
+  12. [ ] [4.6] Tambahkan <main> element dan perbaiki skip link
+
+BATCH 5 — UI/UX POLISH:
+  13. [ ] [6.1] Tambahkan body scroll lock pada mobile menu
+  14. [ ] [6.2] Ganti teks CTA "Live Monitor" ke "Preview Dashboard"
+  15. [ ] [6.4] Konsistenkan bahasa di DashboardSection
+
+BATCH 6 — HOUSEKEEPING:
+  16. [ ] [2.6] Hapus duplikasi keyframe animation di global.css
+  17. [ ] [3.3] Clean up dead code (isOnline di DashboardSection)
+  18. [ ] [3.6] Rename file gambar yang inkonsisten (3x4.png → daffiq.jpeg)
+  19. [ ] [6.3] Hapus ArrowRight hover pada ProductSection cards
+  20. [ ] [1.5] Clean up .gitignore duplikasi
+  21. [ ] [3.4] Buat folder src/hooks/
+
+BATCH 7 — NICE TO HAVE (Jika ada waktu):
+  22. [ ] [1.3] Daftarkan domain ke HSTS Preload List
+  23. [ ] [1.4] Implementasikan email obfuscation
+  24. [ ] [5.1] Tambahkan edge case handling di getWebPPath
+  25. [ ] [5.2] Setup testing infrastructure (Vitest)
+  26. [ ] [3.7] Setup ESLint/Biome + pre-commit hooks
+  27. [ ] [2.7] Guard console.error di production
+  28. [ ] [2.8] Update lucide-react ke versi terbaru
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+10. SKOR PENILAIAN (REVISI-2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Kategori              | Skor Revisi-1 | Skor Revisi-2  | Catatan
+                        | (Sebelum Fix) | (Setelah Fix)  |
+  ──────────────────────|───────────────|────────────────|────────────────────
+  Professional          | 6/10          | 8/10           | TS migrasi ✓, tapi
+                        |               |                | banyak duplikasi kode
+  Lightweight           | 7/10          | 8.5/10         | Self-host ✓, hapus
+                        |               |                | unused deps masih perlu
+  Scalable              | 5/10          | 7.5/10         | Data terpisah ✓, tapi
+                        |               |                | no hooks/testing
+  Security              | 4/10          | 7/10           | Headers ✓, tapi CSP
+                        |               |                | unsafe-inline masih ada
+  Optimization          | 5/10          | 7/10           | WebP ✓, tapi no preload
+                        |               |                | & gambar oversize
+  UI/UX Friendly        | 7/10          | 8/10           | Skip link ✓, tapi
+                        |               |                | kontras & scroll lock
+  ──────────────────────|───────────────|────────────────|────────────────────
+  RATA-RATA             | 5.7/10        | 7.7/10         | Naik +2.0 poin
+  ──────────────────────|───────────────|────────────────|────────────────────
+  TARGET SETELAH FIX    |               | 9.0+/10        | Jika semua Batch 1-5
+                        |               |                | diselesaikan
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+11. KESIMPULAN REVISI-2
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Project atma.biz.id telah mengalami PENINGKATAN SIGNIFIKAN sejak Revisi-1.
+Dari 14 temuan utama Revisi-1, SEMUA telah ditangani dengan baik. Ini
+menunjukkan komitmen tim terhadap kualitas kode.
+
+Namun, dalam analisa mendalam Revisi-2 ini ditemukan 28 temuan yang terdiri
+dari masalah yang BARU TERIDENTIFIKASI (bukan regresi). Fokus utama:
+
+  1. SECURITY: CSP 'unsafe-inline' adalah kelemahan terbesar saat ini.
+     Meskipun headers sudah ditambahkan, efektivitasnya BERKURANG karena
+     unsafe-inline pada script-src secara efektif membatalkan proteksi XSS.
+
+  2. CODE QUALITY: Duplikasi kode adalah tema utama — ErrorBoundary duplikat,
+     IntersectionObserver duplikat, scrollTo duplikat, inline style animation
+     yang berulang. Ini bukan bug, tapi technical debt yang akan menyulitkan
+     maintenance kedepannya.
+
+  3. PERFORMANCE: Font preload yang hilang dan gambar profil yang oversized
+     mempengaruhi Core Web Vitals (LCP, FCP). Ini relatif mudah diperbaiki
+     dengan impact besar.
+
+  4. ACCESSIBILITY: Beberapa elemen masih gagal WCAG AA (kontras #333 dan #444),
+     dan section/accordion kurang ARIA attributes.
+
+Overall: Project sudah JAUH LEBIH BAIK dari kondisi Revisi-1. Dengan
+menyelesaikan Batch 1-5, skor bisa naik dari 7.7 ke target 9.0+/10.
+
+================================================================================
+  END OF REVISI-2 REPORT
+  Siap menerima instruksi perbaikan bertahap.
+================================================================================

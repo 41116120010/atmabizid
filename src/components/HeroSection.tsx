@@ -29,6 +29,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
+      aria-labelledby="hero-heading"
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0A0A0A] pt-[120px] md:pt-[160px] pb-20"
     >
       {/* Background Grid */}
@@ -49,11 +50,7 @@ export default function HeroSection() {
         <div className="flex flex-col items-center text-center">
           {/* Badge */}
           <div
-            className="transition-all duration-700"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? "translateY(0)" : "translateY(20px)",
-            }}
+            className={`fade-in-up-sm ${mounted ? 'visible' : ''}`}
           >
             <div className="inline-flex items-center gap-2 px-4 py-[7px] rounded-[8px] border border-[#C8956C]/20 bg-[#C8956C]/5 mb-8">
               <div className="w-[6px] h-[6px] rounded-full bg-[#C8956C] animate-pulse" />
@@ -65,11 +62,8 @@ export default function HeroSection() {
 
           {/* Headline */}
           <h1
-            className="transition-all duration-700 delay-100"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? "translateY(0)" : "translateY(30px)",
-            }}
+            id="hero-heading"
+            className={`delay-100 fade-in-up ${mounted ? 'visible' : ''}`}
           >
             <span className="block text-[#9A9A9A] text-[14px] md:text-[16px] font-inter font-medium tracking-[0.15em] uppercase mb-4">
               IoT Coffee Dryer Machine
@@ -84,11 +78,7 @@ export default function HeroSection() {
 
           {/* Subtitle */}
           <p
-            className="mt-8 max-w-[520px] text-[#A3A3A3] text-[15px] md:text-[17px] font-inter font-normal leading-[1.7] transition-all duration-700 delay-200"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? "translateY(0)" : "translateY(20px)",
-            }}
+            className={`mt-8 max-w-[520px] text-[#A3A3A3] text-[15px] md:text-[17px] font-inter font-normal leading-[1.7] delay-200 fade-in-up-sm ${mounted ? 'visible' : ''}`}
           >
             Mesin pengering kopi berbasis IoT yang memantau suhu dan kelembaban
             secara real-time. Dibangun oleh Tim ATMA dengan arsitektur
@@ -97,11 +87,7 @@ export default function HeroSection() {
 
           {/* CTA */}
           <div
-            className="mt-10 flex flex-col sm:flex-row items-center gap-4 transition-all duration-700 delay-300"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? "translateY(0)" : "translateY(20px)",
-            }}
+            className={`mt-10 flex flex-col sm:flex-row items-center gap-4 delay-300 fade-in-up-sm ${mounted ? 'visible' : ''}`}
           >
             <button
               onClick={scrollToProduct}
@@ -124,11 +110,7 @@ export default function HeroSection() {
 
           {/* Stats */}
           <div
-            className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 w-full max-w-[600px] transition-all duration-700 delay-[400ms]"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? "translateY(0)" : "translateY(20px)",
-            }}
+            className={`mt-20 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 w-full max-w-[600px] delay-[400ms] fade-in-up-sm ${mounted ? 'visible' : ''}`}
           >
             {stats.map((stat) => {
               const Icon = stat.icon;

@@ -31,6 +31,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen]);
+
   const scrollTo = (href: string) => {
     const el = document.querySelector(href);
     if (el) {
@@ -59,7 +66,7 @@ export default function Navbar() {
             className="flex items-center gap-3 group"
           >
             <picture>
-              <source srcSet={LOGO_WEBP} type="image/webp" />
+              {LOGO_WEBP && <source srcSet={LOGO_WEBP} type="image/webp" />}
               <img
                 src={LOGO_URL}
                 alt="ATMA Logo"
@@ -106,7 +113,7 @@ export default function Navbar() {
             }}
             className="hidden md:flex items-center gap-2 px-5 py-[9px] bg-[#C8956C] hover:bg-[#B8855C] text-[#0A0A0A] text-[13px] font-inter font-semibold rounded-[8px] transition-all duration-200"
           >
-            Live Monitor
+            Preview Dashboard
           </a>
 
           {/* Mobile Toggle */}
@@ -155,7 +162,7 @@ export default function Navbar() {
             }}
             className="mt-2 px-4 py-3 bg-[#C8956C] text-[#0A0A0A] text-[14px] font-inter font-semibold rounded-[8px] text-center"
           >
-            Live Monitor
+            Preview Dashboard
           </a>
         </div>
       </div>

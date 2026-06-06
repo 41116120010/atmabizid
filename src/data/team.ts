@@ -37,7 +37,7 @@ export const teamMembers: TeamMember[] = [
     desc: "Mengelola infrastruktur jaringan, konfigurasi server, dan deployment sistem.",
     color: "#B89ACA",
     skills: ["Linux", "VLAN", "DNS"],
-    imgFilename: "3x4.png",
+    imgFilename: "daffiq.jpeg",
     github: "https://github.com/41116120010",
     email: "daffiq@atma.biz.id",
   },

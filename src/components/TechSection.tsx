@@ -1,44 +1,26 @@
-import { useEffect, useRef, useState } from "react";
+import { useInView } from "../hooks/useInView";
 import { layers, subjects } from "../data/tech";
 
 export default function TechSection() {
-  const [visible, setVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.1 },
-    );
-    const current = sectionRef.current;
-    if (current) observer.observe(current);
-    return () => {
-      if (current) observer.unobserve(current);
-    };
-  }, []);
+  const { ref: sectionRef, visible } = useInView(0.1);
 
   return (
     <section
       id="tech"
       ref={sectionRef}
+      aria-labelledby="tech-heading"
       className="relative py-28 md:py-36 bg-[#060606]"
     >
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] max-w-[1000px] h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-8">
         <div
-          className="max-w-[600px] mb-20 transition-all duration-700"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(30px)",
-          }}
+          className={`max-w-[600px] mb-20 fade-in-up ${visible ? 'visible' : ''}`}
         >
           <span className="text-[#C8956C] text-[12px] font-inter font-medium tracking-[0.12em] uppercase">
             Arsitektur Sistem
           </span>
-          <h2 className="mt-4 text-white font-crimson-text text-[36px] md:text-[48px] font-bold leading-[1.1]">
+          <h2 id="tech-heading" className="mt-4 text-white font-crimson-text text-[36px] md:text-[48px] font-bold leading-[1.1]">
             Teknologi di Balik
             <span className="text-[#C8956C]"> ATMA</span>
           </h2>
@@ -54,12 +36,9 @@ export default function TechSection() {
             return (
               <div
                 key={layer.label}
-                className="relative p-7 rounded-[14px] border border-white/5 bg-white/[0.015] hover:bg-white/[0.03] transition-all duration-300"
+                className={`relative p-7 rounded-[14px] border border-white/5 bg-white/[0.015] hover:bg-white/[0.03] transition-colors duration-300 fade-in-up ${visible ? 'visible' : ''}`}
                 style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "translateY(0)" : "translateY(25px)",
                   transitionDelay: `${200 + i * 120}ms`,
-                  transitionDuration: "700ms",
                 }}
               >
                 <span
@@ -106,11 +85,7 @@ export default function TechSection() {
         </div>
 
         <div
-          className="p-6 md:p-8 rounded-[14px] border border-white/5 bg-white/[0.01] transition-all duration-700 delay-[700ms]"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-          }}
+          className={`p-6 md:p-8 rounded-[14px] border border-white/5 bg-white/[0.01] delay-[700ms] fade-in-up-sm ${visible ? 'visible' : ''}`}
         >
           <span className="text-[#9A9A9A] text-[11px] font-inter font-medium tracking-[0.1em] uppercase block mb-5">
             Integrasi Mata Kuliah Semester 4
