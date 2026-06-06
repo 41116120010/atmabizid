@@ -85,27 +85,25 @@
   }
 }
 
-@layer utilities {
-  /* Scroll-triggered fade-in animations */
-  .fade-in-up {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 700ms ease, transform 700ms ease;
-  }
+/* Scroll-triggered fade-in animations */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
 
-  .fade-in-up.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-  .fade-in-up-sm {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 700ms ease, transform 700ms ease;
-  }
+.fade-in-up-sm {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
 
-  .fade-in-up-sm.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.fade-in-up-sm.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
