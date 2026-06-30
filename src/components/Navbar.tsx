@@ -104,17 +104,7 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* CTA */}
-          <a
-            href="#dashboard"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollTo("#dashboard");
-            }}
-            className="hidden md:flex items-center gap-2 px-5 py-[9px] bg-[#C8956C] hover:bg-[#B8855C] text-[#0A0A0A] text-[13px] font-inter font-semibold rounded-[8px] transition-all duration-200"
-          >
-            Preview Dashboard
-          </a>
+
 
           {/* Mobile Toggle */}
           <button
@@ -154,16 +144,7 @@ export default function Navbar() {
               </a>
             );
           })}
-          <a
-            href="#dashboard"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollTo("#dashboard");
-            }}
-            className="mt-2 px-4 py-3 bg-[#C8956C] text-[#0A0A0A] text-[14px] font-inter font-semibold rounded-[8px] text-center"
-          >
-            Preview Dashboard
-          </a>
+
         </div>
       </div>
     </nav>
