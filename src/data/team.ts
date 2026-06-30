@@ -3,8 +3,8 @@ import type { TeamMember } from "../types";
 export const teamMembers: TeamMember[] = [
   {
     name: "Ihsanul Hafizh Suparman",
-    role: "IoT Engineer",
-    desc: "Bertanggung jawab atas perakitan hardware dan integrasi sensor dengan mikrokontroler.",
+    role: "Chief Technology Officer",
+    desc: "Memimpin arah teknologi proyek, merancang arsitektur sistem IoT, dan memastikan integrasi hardware-software berjalan optimal.",
     color: "#C8956C",
     skills: ["ESP32", "SHT31-D", "Sensor"],
     imgFilename: "ihsan.jpeg",
@@ -13,8 +13,8 @@ export const teamMembers: TeamMember[] = [
   },
   {
     name: "Rahmat Priyadi",
-    role: "Backend Developer",
-    desc: "Merancang dan mengembangkan arsitektur microservice serta API gateway.",
+    role: "Chief Information Security Officer",
+    desc: "Bertanggung jawab atas keamanan seluruh sistem, implementasi enkripsi data, dan kebijakan keamanan informasi proyek.",
     color: "#7C9CBF",
     skills: ["Node.js", "REST API", "Docker"],
     imgFilename: "apri.jpeg",
@@ -23,8 +23,8 @@ export const teamMembers: TeamMember[] = [
   },
   {
     name: "M. Radithya Rafif",
-    role: "Security Engineer",
-    desc: "Mengimplementasikan keamanan jaringan, enkripsi data, dan penetration testing.",
+    role: "Chief Executive Officer",
+    desc: "Memimpin visi dan strategi keseluruhan proyek ATMA, mengoordinasikan tim, serta memastikan target pengembangan tercapai.",
     color: "#8BC49E",
     skills: ["Encryption", "Firewall", "Pentest"],
     imgFilename: "radit.jpeg",
@@ -33,8 +33,8 @@ export const teamMembers: TeamMember[] = [
   },
   {
     name: "Daffiq Trie Octorino",
-    role: "Network Admin",
-    desc: "Mengelola infrastruktur jaringan, konfigurasi server, dan deployment sistem.",
+    role: "System Administrator",
+    desc: "Mengelola dan memelihara infrastruktur server, jaringan, serta memastikan ketersediaan dan keandalan sistem secara penuh.",
     color: "#B89ACA",
     skills: ["Linux", "VLAN", "DNS"],
     imgFilename: "daffiq.jpeg",
