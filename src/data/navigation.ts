@@ -6,7 +6,6 @@ export const navLinks: NavLink[] = [
   { label: "Teknologi", href: "#tech" },
   { label: "Roadmap", href: "#roadmap" },
   { label: "Tim", href: "#team" },
-  { label: "Dashboard", href: "#dashboard" },
 ];
 
 // Footer uses the same links as navbar

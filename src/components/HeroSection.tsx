@@ -55,7 +55,7 @@ export default function HeroSection() {
             <div className="inline-flex items-center gap-2 px-4 py-[7px] rounded-[8px] border border-[#C8956C]/20 bg-[#C8956C]/5 mb-8">
               <div className="w-[6px] h-[6px] rounded-full bg-[#C8956C] animate-pulse" />
               <span className="text-[#C8956C] text-[12px] font-inter font-medium tracking-[0.08em] uppercase">
-                Dalam Pengembangan
+                Proyek Selesai
               </span>
             </div>
           </div>

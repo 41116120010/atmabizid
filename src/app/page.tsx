@@ -5,7 +5,6 @@ import ProductSection from "../components/ProductSection";
 import TechSection from "../components/TechSection";
 import RoadmapSection from "../components/RoadmapSection";
 import TeamSection from "../components/TeamSection";
-import DashboardSection from "../components/DashboardSection";
 import Footer from "../components/Footer";
 
 export default function HomePage() {
@@ -26,7 +25,6 @@ export default function HomePage() {
           <TechSection />
           <RoadmapSection />
           <TeamSection />
-          <DashboardSection />
         </main>
         <Footer />
       </div>

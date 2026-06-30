@@ -7,7 +7,7 @@ export const layers: TechLayer[] = [
     title: "IoT & Sensor",
     desc: "Mikrokontroler membaca data suhu dan kelembaban dari sensor, lalu mengirimkan ke cloud.",
     icon: Cpu,
-    tags: ["ESP32/Arduino", "DHT Sensor", "MQTT Protocol"],
+    tags: ["ESP32", "SHT31-D Sensor", "MQTT Protocol"],
     color: "#C8956C",
   },
   {

@@ -6,7 +6,7 @@ export const teamMembers: TeamMember[] = [
     role: "IoT Engineer",
     desc: "Bertanggung jawab atas perakitan hardware dan integrasi sensor dengan mikrokontroler.",
     color: "#C8956C",
-    skills: ["ESP32", "Arduino", "Sensor"],
+    skills: ["ESP32", "SHT31-D", "Sensor"],
     imgFilename: "ihsan.jpeg",
     github: "https://github.com/OnlyTexy",
     email: "ihsan@atma.biz.id",
